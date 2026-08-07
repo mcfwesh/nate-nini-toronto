@@ -225,6 +225,7 @@
       display: flex; align-items: center; gap: 0.75rem;
     }
     .sticky-now-text { flex: 1; min-width: 0; }
+    .sticky-now-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
     .btn-go {
       flex: 0 0 auto;
       background: var(--gold);
@@ -584,6 +585,53 @@
       padding: 0.8rem;
       cursor: pointer;
     }
+    .place-sheet-head {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+    }
+    .place-sheet-head h4 { flex: 1; }
+    .place-close {
+      width: auto; margin: 0; padding: 0.45rem 0.7rem; font-size: 0.75rem;
+    }
+    .place-sheet-address, .place-sheet-parking {
+      color: var(--muted); font-size: 0.84rem; margin: 0.35rem 0;
+    }
+    .place-sheet-do { margin: 0.85rem 0; color: var(--ink); }
+    .place-sheet-parking { color: var(--gold); font-weight: 700; }
+    .place-title {
+      appearance: none; border: 0; background: transparent; color: inherit;
+      font: inherit; font-weight: inherit; letter-spacing: inherit;
+      padding: 0; text-align: left; cursor: pointer;
+    }
+    .place-title::after {
+      content: "↗"; color: var(--gold); font-family: var(--sans);
+      font-size: 0.75em; margin-left: 0.35rem; vertical-align: 0.1em;
+    }
+    .transport-row {
+      display: flex; align-items: center; gap: 0.45rem; margin-top: 0.55rem;
+    }
+    .transport-label {
+      color: var(--muted); font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .transport-toggle {
+      appearance: none; border: 1px solid rgba(212,168,75,0.35);
+      border-radius: 999px; background: var(--bg-deep); color: var(--gold);
+      font: inherit; font-size: 0.75rem; font-weight: 700;
+      padding: 0.35rem 0.6rem; cursor: pointer;
+    }
+    .transport-options {
+      display: grid; gap: 0.4rem; margin-top: 0.45rem;
+    }
+    .transport-options[hidden] { display: none; }
+    .transport-option {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+      width: 100%; border: 1px solid var(--line); border-radius: 12px;
+      background: var(--bg-deep); color: var(--ink); font: inherit;
+      padding: 0.55rem 0.65rem; text-align: left; cursor: pointer;
+    }
+    .transport-option.active { border-color: var(--gold); color: var(--gold); }
+    .transport-option:disabled { cursor: not-allowed; opacity: 0.45; }
+    .transport-option small { color: var(--muted); font-size: 0.72rem; }
 
 
     .day-head {
@@ -1034,7 +1082,7 @@
       }
     } catch (e) {}
   </script>
-  <div id="whoGate" class="who-gate" role="dialog" aria-modal="true" aria-labelledby="whoGateTitle">
+  <div id="whoGate" class="who-gate" role="dialog" aria-modal="true" aria-labelledby="whoGateTitle" aria-hidden="false">
     <div class="who-gate-bg" aria-hidden="true"></div>
     <div class="who-gate-inner">
       <div class="eyebrow">Trip guide</div>
@@ -1075,8 +1123,8 @@
     <div class="content">
 
     <p class="who-chip" id="whoChip">This phone is <strong id="whoChipName">—</strong></p>
-    <p class="sync-status" id="syncStatus">Starting sync…</p>
-    <p class="gps-live" id="gpsLive"></p>
+    <p class="sync-status" id="syncStatus" role="status" aria-live="polite" aria-atomic="true">Starting sync…</p>
+    <p class="gps-live" id="gpsLive" role="status" aria-live="polite" aria-atomic="true"></p>
     <div id="gpsBanner" class="gps-banner" role="status">
       <strong>Turn on location</strong>
       <p>Distances update only while this guide is open.</p>
@@ -1098,14 +1146,17 @@
         <p class="next-title" id="nextTitle">Loading…</p>
         <p class="next-meta" id="nextMeta"></p>
       </div>
-      <a class="btn btn-go" id="nextGo" href="#" target="_blank" rel="noopener" hidden>Maps</a>
+      <div class="sticky-now-actions">
+        <button type="button" class="btn btn-soft" id="replanBtn" hidden>Replan remaining</button>
+        <a class="btn btn-go" id="nextGo" href="#" target="_blank" rel="noopener" hidden>Maps</a>
+      </div>
     </div>
 
     <nav class="tabs" role="tablist" aria-label="Trip sections" hidden>
-      <button class="tab" role="tab" data-panel="fri" aria-selected="true">Fri</button>
-      <button class="tab" role="tab" data-panel="sat" aria-selected="false">Sat</button>
-      <button class="tab" role="tab" data-panel="sun" aria-selected="false">Sun</button>
-      <button class="tab" role="tab" data-panel="tools" aria-selected="false">Tools</button>
+      <button class="tab" role="tab" data-panel="fri" aria-controls="panel-fri" aria-selected="true">Fri</button>
+      <button class="tab" role="tab" data-panel="sat" aria-controls="panel-sat" aria-selected="false">Sat</button>
+      <button class="tab" role="tab" data-panel="sun" aria-controls="panel-sun" aria-selected="false">Sun</button>
+      <button class="tab" role="tab" data-panel="tools" aria-controls="panel-tools" aria-selected="false">Tools</button>
     </nav>
 
     <section id="panel-fri" class="panel active" role="tabpanel"></section>
@@ -1192,8 +1243,25 @@
     </div><!-- .content -->
 
     <p class="footer-note">Nate &amp; Nini Bear · Aug 2026 · progress syncs for both phones</p>
+    <div id="placeSheet" class="picker-sheet" hidden aria-hidden="true">
+      <div class="picker-panel" role="dialog" aria-modal="true" aria-labelledby="placeTitle" tabindex="-1">
+        <div class="place-sheet-head">
+          <h4 id="placeTitle">Place details</h4>
+          <button type="button" class="picker-cancel place-close" id="placeClose">Close</button>
+        </div>
+        <p class="place-sheet-address" id="placeAddress"></p>
+        <p class="place-sheet-do" id="placeDescription"></p>
+        <p class="place-sheet-parking" id="placeParking"></p>
+        <div class="actions">
+          <a class="btn btn-primary" id="placeGoogle" href="#" target="_blank" rel="noopener">Google place page</a>
+          <a class="btn btn-soft" id="placeDirections" href="#" target="_blank" rel="noopener">Directions</a>
+          <a class="btn btn-soft" id="placeOfficial" href="#" target="_blank" rel="noopener" hidden>Official site</a>
+        </div>
+      </div>
+    </div>
+
     <div id="pickerSheet" class="picker-sheet" hidden>
-      <div class="picker-panel" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+      <div class="picker-panel" role="dialog" aria-modal="true" aria-labelledby="pickerTitle" tabindex="-1">
         <h4 id="pickerTitle">Choose stop</h4>
         <div id="pickerOptions"></div>
         <button type="button" class="picker-cancel" id="pickerCancel">Cancel</button>
@@ -1201,10 +1269,10 @@
     </div>
 
     <nav class="dock" role="tablist" aria-label="Trip sections">
-      <button class="tab" role="tab" data-panel="fri" aria-selected="true"><span class="ico">✦</span>Fri</button>
-      <button class="tab" role="tab" data-panel="sat" aria-selected="false"><span class="ico">◎</span>Sat</button>
-      <button class="tab" role="tab" data-panel="sun" aria-selected="false"><span class="ico">◐</span>Sun</button>
-      <button class="tab" role="tab" data-panel="tools" aria-selected="false"><span class="ico">☰</span>Tools</button>
+      <button class="tab" role="tab" data-panel="fri" aria-controls="panel-fri" aria-selected="true"><span class="ico">✦</span>Fri</button>
+      <button class="tab" role="tab" data-panel="sat" aria-controls="panel-sat" aria-selected="false"><span class="ico">◎</span>Sat</button>
+      <button class="tab" role="tab" data-panel="sun" aria-controls="panel-sun" aria-selected="false"><span class="ico">◐</span>Sun</button>
+      <button class="tab" role="tab" data-panel="tools" aria-controls="panel-tools" aria-selected="false"><span class="ico">☰</span>Tools</button>
     </nav>
   </div>
 
@@ -1220,7 +1288,7 @@
         addr: "1003 Airport Parkway Pvt, Ottawa",
         do: "Pick up economy car ~7:00 AM. Full G licence + credit card. Photo any scratches. Confirm Sunday ~7 PM return.",
         maps: "https://maps.google.com/?q=Enterprise+Rent-A-Car+Ottawa+Airport",
-        lat: 45.3225, lng: -75.6692, mode: "drive",
+        lat: 45.3225, lng: -75.6692, mode: "drive", transportRequired: true,
         locked: true
       },
       hotel: {
@@ -1228,7 +1296,7 @@
         addr: "5503 Eglinton Ave W, Etobicoke",
         do: "Check in ~12:30 PM. Park the car here for the weekend (free). Free breakfast Sat & Sun.",
         maps: "https://maps.google.com/?q=Best+Western+Plus+Travel+Hotel+Toronto+Airport+5503+Eglinton",
-        lat: 43.6436, lng: -79.5645, mode: "drive",
+        lat: 43.6436, lng: -79.5645, mode: "drive", parking: "free",
         locked: true
       },
       harbourfront: {
@@ -1255,7 +1323,7 @@
       funkeys: {
         name: "Funkey’s Delicacies",
         addr: "4205 Keele St Unit 3, North York",
-        do: "Your one Nigerian dinner. Order Abula (amala + gbegiri + ewedu) or egusi with swallow, plus jollof or suya. Drive or Uber from hotel (~25 min).",
+        do: "Your one Nigerian dinner. Order Abula (amala + gbegiri + ewedu) or egusi with swallow, plus jollof or suya. TTC or Uber from hotel (~25 min).",
         maps: "https://maps.google.com/?q=Funkey's+Delicacies+4205+Keele+St+Toronto",
         lat: 43.7665, lng: -79.4872, mode: "drive",
         phone: "6476293485"
@@ -1303,7 +1371,7 @@
         addr: "7855 Finch Ave W, Brampton",
         do: "Waterpark afternoon after Ripley’s (~3–4 hrs). Buy tickets online. Parking ~$25. Swimsuits + towel. Then hotel nap before Mild Afro.",
         maps: "https://maps.google.com/?q=Wet+n+Wild+Toronto+7855+Finch+Ave+W",
-        lat: 43.7294, lng: -79.6186, mode: "drive",
+        lat: 43.7294, lng: -79.6186, mode: "drive", parking: "paid-exception",
         ticketUrl: "https://wetnwildtoronto.com/plan-a-visit/tickets/",
         ticketLabel: "Buy Wet’n’Wild tickets"
       },
@@ -1312,7 +1380,7 @@
         addr: "1 Canada’s Wonderland Dr, Vaughan",
         do: "Optional swap: coasters + waterpark on one ticket. Longer day; parking ~$25–40. Only if you skip Wet’n’Wild.",
         maps: "https://maps.google.com/?q=Canada's+Wonderland+Vaughan",
-        lat: 43.843, lng: -79.5423, mode: "drive",
+        lat: 43.843, lng: -79.5423, mode: "drive", parking: "paid-exception",
         ticketUrl: "https://www.sixflags.com/canadaswonderland",
         ticketLabel: "Buy Wonderland tickets"
       },
@@ -1428,14 +1496,14 @@
         addr: "Highway 401 East",
         do: "Skip Toronto stops. Optional Kingston washroom/coffee. Fastest way back.",
         maps: "https://maps.google.com/?q=Highway+401+east+from+Toronto",
-        lat: 43.7, lng: -79.3, mode: "drive",
+        lat: 43.7, lng: -79.3, mode: "drive", transportRequired: true,
       },
       yowReturn: {
         name: "Enterprise YOW — car return",
         addr: "Ottawa Airport",
         do: "Fill gas near YOW first. Return ~7:00 PM. After-hours drop box if needed.",
         maps: "https://maps.google.com/?q=Enterprise+Rent-A-Car+Ottawa+Airport",
-        lat: 45.3225, lng: -75.6692, mode: "drive",
+        lat: 45.3225, lng: -75.6692, mode: "drive", transportRequired: true,
         locked: true
       },
       ayoka: {
@@ -1554,6 +1622,51 @@
       }
     }
 
+    function plainMap(value) {
+      return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    }
+
+    function normalizeState(raw) {
+      const source = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+      const out = Object.assign({
+        swaps: {},
+        transport: {},
+        planTimes: {},
+        done: {},
+        doneMeta: {},
+        notes: {},
+        checks: {},
+        pack: {},
+        budget: {},
+        activity: [],
+        updatedAt: null,
+        updatedBy: null,
+        panel: "fri",
+        installDismissed: false,
+        nearDismiss: {},
+        order: { fri: [], sat: [], sun: [] },
+        orderMeta: { fri: null, sat: null, sun: null },
+        clocks: { done: {}, swaps: {}, transport: {}, planTimes: {}, order: {}, notes: {}, checks: {}, pack: {}, budget: {}, nearDismiss: {} },
+        rev: 0
+      }, source);
+      for (const key of ["swaps", "transport", "planTimes", "done", "doneMeta", "notes", "checks", "pack", "budget", "nearDismiss"]) {
+        out[key] = plainMap(out[key]);
+      }
+      out.activity = Array.isArray(out.activity) ? out.activity.filter(Boolean).slice(0, 80) : [];
+      out.order = plainMap(out.order);
+      for (const day of ["fri", "sat", "sun"]) {
+        out.order[day] = Array.isArray(out.order[day]) ? out.order[day].filter(id => typeof id === "string") : [];
+      }
+      out.orderMeta = plainMap(out.orderMeta);
+      out.clocks = plainMap(out.clocks);
+      for (const key of ["done", "swaps", "transport", "planTimes", "order", "notes", "checks", "pack", "budget", "nearDismiss"]) {
+        out.clocks[key] = plainMap(out.clocks[key]);
+      }
+      if (!["fri", "sat", "sun", "tools"].includes(out.panel)) out.panel = "fri";
+      out.rev = Number.isFinite(out.rev) && out.rev >= 0 ? out.rev : 0;
+      return out;
+    }
+
     function escapeHtml(str) {
       return String(str == null ? "" : str)
         .replace(/&/g, "&amp;")
@@ -1562,25 +1675,7 @@
         .replace(/"/g, "&quot;");
     }
 
-    let state = Object.assign({
-      swaps: {},
-      done: {},
-      doneMeta: {},
-      notes: {},
-      checks: {},
-      pack: {},
-      budget: {},
-      activity: [],
-      updatedAt: null,
-      updatedBy: null,
-      panel: "fri",
-      installDismissed: false,
-      nearDismiss: {},
-      order: { fri: [], sat: [], sun: [] },
-      orderMeta: { fri: null, sat: null, sun: null },
-      clocks: { done: {}, swaps: {}, order: {}, notes: {}, checks: {}, pack: {}, budget: {}, nearDismiss: {} },
-      rev: 0
-    }, loadState());
+    let state = normalizeState(loadState());
 
     function readStoredWho() {
       try {
@@ -1630,12 +1725,20 @@
       el.className = "sync-status" + (kind ? " " + kind : "");
     }
 
+    function focusWhoGate() {
+      if (!document.body.classList.contains("needs-who")) return;
+      requestAnimationFrame(() => document.querySelector("#whoGate button[data-who]")?.focus());
+    }
+
     function applyWhoGate() {
       const ready = !!(who === "Nate" || who === "Nini Bear");
       document.body.classList.toggle("needs-who", !ready);
       document.body.classList.toggle("has-who", ready);
+      const gate = document.getElementById("whoGate");
+      if (gate) gate.setAttribute("aria-hidden", ready ? "true" : "false");
       const chip = document.getElementById("whoChipName");
       if (chip) chip.textContent = ready ? who : "—";
+      if (!ready) focusWhoGate();
       return ready;
     }
 
@@ -1684,10 +1787,12 @@
     let pullInFlight = false;
     let pushInFlight = false;
     let localChangeSeq = 0;
+    let pushRetryTimer = null;
+    let pushRetryAttempt = 0;
 
     function stateFingerprint(s) {
       return JSON.stringify({
-        rev: s.rev, swaps: s.swaps, done: s.done, doneMeta: s.doneMeta, notes: s.notes,
+        rev: s.rev, swaps: s.swaps, transport: s.transport, planTimes: s.planTimes, done: s.done, doneMeta: s.doneMeta, notes: s.notes,
         checks: s.checks, pack: s.pack, budget: s.budget, order: s.order,
         nearDismiss: s.nearDismiss, clocks: s.clocks, updatedAt: s.updatedAt,
         activity: (s.activity || []).slice(0, 5)
@@ -1696,7 +1801,7 @@
 
     function ensureClocks(s) {
       if (!s.clocks) s.clocks = {};
-      for (const k of ["done","swaps","order","notes","checks","pack","budget","nearDismiss"]) {
+      for (const k of ["done","swaps","transport","planTimes","order","notes","checks","pack","budget","nearDismiss"]) {
         if (!s.clocks[k] || typeof s.clocks[k] !== "object") s.clocks[k] = {};
       }
       if (!s.orderMeta) s.orderMeta = { fri: null, sat: null, sun: null };
@@ -1795,6 +1900,8 @@
       const clocks = mergeClocks(local.clocks, remote.clocks);
       const merged = {
         swaps: mergeMapLWW(local.swaps, remote.swaps, local.clocks, remote.clocks, "swaps"),
+        transport: mergeMapLWW(local.transport, remote.transport, local.clocks, remote.clocks, "transport"),
+        planTimes: mergeMapLWW(local.planTimes, remote.planTimes, local.clocks, remote.clocks, "planTimes"),
         done: mergeMapLWW(local.done, remote.done, local.clocks, remote.clocks, "done"),
         doneMeta: Object.assign({}, remote.doneMeta || {}, local.doneMeta || {}),
         notes: mergeMapLWW(local.notes, remote.notes, local.clocks, remote.clocks, "notes"),
@@ -1838,6 +1945,8 @@
       return {
         rev: s.rev || 0,
         swaps: s.swaps,
+        transport: s.transport,
+        planTimes: s.planTimes,
         done: s.done,
         doneMeta: s.doneMeta || {},
         notes: s.notes,
@@ -1935,6 +2044,7 @@
           const verify = await fetchRemote();
           const sameFp = stateFingerprint(verify) === stateFingerprint(merged);
           if (sameFp) {
+            pushRetryAttempt = 0;
             if (localChangeSeq === startedSeq) {
               Object.keys(merged).forEach(k => { state[k] = merged[k]; });
             } else {
@@ -1953,6 +2063,15 @@
         setSyncStatus("Sync busy — tap Sync now", "err");
       } catch (err) {
         setSyncStatus("Could not save sync — " + (err.message || "retry"), "err");
+        if (who) {
+          const delay = Math.min(30000, 2000 * (2 ** pushRetryAttempt));
+          pushRetryAttempt = Math.min(pushRetryAttempt + 1, 4);
+          clearTimeout(pushRetryTimer);
+          pushRetryTimer = setTimeout(() => {
+            pushRetryTimer = null;
+            pushRemote();
+          }, delay);
+        }
       } finally {
         pushInFlight = false;
         if (localChangeSeq !== startedSeq) {
@@ -1967,6 +2086,9 @@
       localDirtyUntil = Date.now() + 1800;
       saveState(state);
       clearTimeout(syncTimer);
+      clearTimeout(pushRetryTimer);
+      pushRetryTimer = null;
+      pushRetryAttempt = 0;
       syncTimer = setTimeout(pushRemote, 350);
     }
 
@@ -1995,15 +2117,15 @@
       return slot.default;
     }
 
-    function mapsUrl(place, origin) {
+    function mapsUrl(place, origin, mode) {
       if (!place.lat || !place.lng) return place.maps;
-      const mode = travelModeForMaps(resolveMode(place, null));
+      const travelMode = travelModeForMaps(mode || resolveMode(place, null));
       if (origin && origin.lat != null) {
         return "https://www.google.com/maps/dir/?api=1&origin=" + origin.lat + "," + origin.lng +
-          "&destination=" + place.lat + "," + place.lng + "&travelmode=" + mode;
+          "&destination=" + place.lat + "," + place.lng + "&travelmode=" + travelMode;
       }
       return "https://www.google.com/maps/dir/?api=1&destination=" + place.lat + "," + place.lng +
-        "&travelmode=" + mode;
+        "&travelmode=" + travelMode;
     }
 
     function travelModeForMaps(mode) {
@@ -2035,6 +2157,141 @@
       return Math.max(1, Math.round((km / speed) * 60));
     }
 
+    const TRANSPORT_LABELS = { walk: "Walk", ttc: "TTC", drive: "Drive", uber: "Uber" };
+
+    function transportLabel(mode) {
+      return TRANSPORT_LABELS[mode] || "TTC";
+    }
+
+    function parkingLabel(place) {
+      if (place.transportRequired) return "Required for this leg";
+      if (place.parking === "free") return "Confirmed free parking";
+      if (place.parking === "paid-exception") return "Paid parking exception";
+      return "Parking not confirmed";
+    }
+
+    function driveAllowed(place) {
+      return !!(place.transportRequired || place.parking === "free" || place.parking === "paid-exception");
+    }
+
+    function defaultTransport(place) {
+      if (place.transportRequired || place.parking === "free") return "drive";
+      if (place.mode === "walk") return "walk";
+      return "ttc";
+    }
+
+    function baseTransport(slot, place) {
+      const chosen = state.transport && state.transport[slot.id];
+      const allowed = ["walk", "ttc", "drive", "uber"];
+      if (allowed.includes(chosen) && (chosen !== "drive" || driveAllowed(place))) return chosen;
+      return defaultTransport(place);
+    }
+
+    function carLocationBefore(dayKey, slot) {
+      let car = dayKey === "fri" ? "yow" : "hotel";
+      for (const prior of orderedSlots(dayKey)) {
+        if (prior.id === slot.id) break;
+        const priorPlaceId = activePlaceId(prior);
+        const priorPlace = places[priorPlaceId];
+        const mode = baseTransport(prior, priorPlace);
+        if (mode === "drive" && driveAvailable(dayKey, prior, priorPlace)) car = priorPlaceId;
+      }
+      return car;
+    }
+
+    function driveAvailable(dayKey, slot, place) {
+      if (!driveAllowed(place)) return false;
+      if (place.transportRequired) return true;
+      const ordered = orderedSlots(dayKey);
+      const index = ordered.findIndex(item => item.id === slot.id);
+      const originId = index > 0 ? activePlaceId(ordered[index - 1]) : "hotel";
+      return carLocationBefore(dayKey, slot) === originId;
+    }
+
+    function selectedTransport(dayKey, slot, place) {
+      const chosen = baseTransport(slot, place);
+      if (chosen === "drive" && !driveAvailable(dayKey, slot, place)) return "ttc";
+      return chosen;
+    }
+
+    function transportOrigin(dayKey, slot) {
+      const ordered = orderedSlots(dayKey);
+      const index = ordered.findIndex(item => item.id === slot.id);
+      if (index > 0) return places[activePlaceId(ordered[index - 1])];
+      return dayKey === "fri" && slot.id === "f1" ? null : places.hotel;
+    }
+
+    function transportMinutes(origin, place, mode) {
+      if (!origin || !place || origin.lat == null || place.lat == null) return null;
+      return etaMinutes(haversineKm(origin, place), mode);
+    }
+
+    function transportOptions(dayKey, slot, place) {
+      const origin = transportOrigin(dayKey, slot);
+      const modes = place.mode === "walk" ? ["walk", "ttc", "drive", "uber"] : ["ttc", "drive", "uber"];
+      return modes.map(mode => ({
+        mode,
+        minutes: transportMinutes(origin, place, mode),
+        disabled: mode === "drive" && !driveAvailable(dayKey, slot, place),
+        note: mode === "drive"
+          ? (!driveAllowed(place) ? parkingLabel(place) : (driveAvailable(dayKey, slot, place) ? parkingLabel(place) : "Car is not at this stop"))
+          : (mode === "ttc" ? "Public transit" : "")
+      }));
+    }
+
+    function formatClock(date) {
+      let hour = date.getHours();
+      const minute = String(date.getMinutes()).padStart(2, "0");
+      const suffix = hour >= 12 ? "PM" : "AM";
+      hour = hour % 12 || 12;
+      return hour + ":" + minute + " " + suffix;
+    }
+
+    function lateDoneAnchor() {
+      let latest = null;
+      for (const day of ["fri", "sat", "sun"]) {
+        for (const slot of orderedSlots(day)) {
+          const meta = state.doneMeta && state.doneMeta[slot.id];
+          const planned = slotScheduleDate(day, slot);
+          if (!state.done[slot.id] || !meta || !planned) continue;
+          const completedAt = Date.parse(meta.at || "");
+          if (!Number.isFinite(completedAt) || completedAt - planned.getTime() <= 15 * 60000) continue;
+          if (!latest || completedAt > latest.completedAt) latest = { day, slot, completedAt };
+        }
+      }
+      return latest;
+    }
+
+    function replanRemaining() {
+      const anchor = lateDoneAnchor();
+      if (!anchor) return;
+      const plannedAnchor = slotScheduleDate(anchor.day, anchor.slot);
+      const now = new Date();
+      const ordered = orderedSlots(anchor.day);
+      const anchorIndex = ordered.findIndex(slot => slot.id === anchor.slot.id);
+      if (anchorIndex < 0) return;
+
+      state.planTimes[anchor.slot.id] = formatClock(now);
+      clockTouch("planTimes", anchor.slot.id);
+      let previousPlanned = plannedAnchor ? plannedAnchor.getTime() : now.getTime();
+      let cursor = now.getTime();
+      for (let i = anchorIndex + 1; i < ordered.length; i++) {
+        const slot = ordered[i];
+        const original = slotScheduleDate(anchor.day, slot);
+        const gap = original ? Math.max(30 * 60000, original.getTime() - previousPlanned) : 90 * 60000;
+        cursor += gap;
+        if (!state.done[slot.id]) {
+          state.planTimes[slot.id] = formatClock(new Date(cursor));
+          clockTouch("planTimes", slot.id);
+        }
+        previousPlanned = original ? original.getTime() : previousPlanned + gap;
+      }
+      logActivity("replanned remaining " + ({ fri: "Friday", sat: "Saturday", sun: "Sunday" }[anchor.day] || anchor.day));
+      queuePush();
+      renderAll();
+      renderActivity();
+    }
+
     function formatDist(km, mode) {
       const kmStr = km < 10 ? km.toFixed(1) : String(Math.round(km));
       const mins = etaMinutes(km, mode);
@@ -2049,7 +2306,14 @@
     const GPS_MIN_M = 50;
     const GPS_POLL_MS = 55000;
     const GPS_PREF = "nate-nini-gps-on";
-    let gpsWanted = localStorage.getItem(GPS_PREF) === "1";
+    function readLocalFlag(key) {
+      try {
+        return localStorage.getItem(key) === "1";
+      } catch (_) {
+        return false;
+      }
+    }
+    let gpsWanted = readLocalFlag(GPS_PREF);
 
     function showGpsBanner(show) {
       const el = document.getElementById("gpsBanner");
@@ -2146,12 +2410,12 @@
       geo.timer = setInterval(pollGpsOnce, GPS_POLL_MS);
     }
 
-    function distHtml(place, plain) {
+    function distHtml(place, plain, modeOverride) {
       if (!geo.ok || place.lat == null) {
         return plain ? "" : '<p class="dist-line" hidden></p>';
       }
       const km = haversineKm(geo, place);
-      const mode = resolveMode(place, km);
+      const mode = modeOverride || resolveMode(place, km);
       const f = formatDist(km, mode);
       if (plain) return '<span class="mode-tag">' + f.label + "</span>" + f.text;
       return '<p class="dist-line"><span class="mode-tag">' + f.label + "</span>" + f.text + "</p>";
@@ -2163,24 +2427,54 @@
         const slot = [...days.fri, ...days.sat, ...days.sun].find(s => s.id === slotId);
         if (!slot) return;
         const place = places[activePlaceId(slot)];
-        el.innerHTML = distHtml(place);
+        const dayKey = ["fri", "sat", "sun"].find(day => days[day].some(item => item.id === slot.id)) || "fri";
+        el.innerHTML = distHtml(place, false, selectedTransport(dayKey, slot, place));
       });
       const nextDist = document.getElementById("nextDist");
       if (nextDist && nextDist.dataset.place) {
         const place = places[nextDist.dataset.place];
-        if (place) nextDist.innerHTML = distHtml(place, true);
+        const next = firstIncomplete();
+        if (place) nextDist.innerHTML = distHtml(place, true, next ? selectedTransport(next.day, next.slot, place) : null);
       }
       if (geo.ok) {
         document.querySelectorAll("a[data-maps-place]").forEach(a => {
           const place = places[a.getAttribute("data-maps-place")];
-          if (place) a.href = mapsUrl(place, geo);
+          const slot = [...days.fri, ...days.sat, ...days.sun].find(s => s.id === a.dataset.mapsSlot);
+          const dayKey = slot && ["fri", "sat", "sun"].find(day => days[day].some(item => item.id === slot.id));
+          if (place) a.href = mapsUrl(place, geo, slot ? selectedTransport(dayKey, slot, place) : null);
         });
         const go = document.getElementById("nextGo");
         if (go && go.dataset.place) {
           const place = places[go.dataset.place];
-          if (place) go.href = mapsUrl(place, geo);
+          const slot = firstIncomplete();
+          if (place) go.href = mapsUrl(place, geo, slot ? selectedTransport(slot.day, slot.slot, place) : null);
         }
       }
+    }
+
+    function transportSummary(dayKey, slot, place) {
+      const mode = selectedTransport(dayKey, slot, place);
+      const minutes = transportMinutes(transportOrigin(dayKey, slot), place, mode);
+      return transportLabel(mode) + (minutes == null ? "" : " · ~" + minutes + " min");
+    }
+
+    function renderTransport(dayKey, slot, place) {
+      const selected = selectedTransport(dayKey, slot, place);
+      const options = transportOptions(dayKey, slot, place);
+      const optionHtml = options.map(option => {
+        const detail = option.minutes == null
+          ? option.note
+          : "~" + option.minutes + " min" + (option.note ? " · " + option.note : "");
+        return `<button type="button" class="transport-option${option.mode === selected ? " active" : ""}" data-transport-mode="${option.mode}" data-slot="${slot.id}" aria-pressed="${option.mode === selected ? "true" : "false"}"${option.disabled ? " disabled" : ""}>
+          <span>${transportLabel(option.mode)}</span><small>${escapeHtml(detail || "Open directions")}</small>
+        </button>`;
+      }).join("");
+      return `
+        <div class="transport-row">
+          <span class="transport-label">Travel</span>
+          <button type="button" class="transport-toggle" data-transport-toggle="${slot.id}" aria-controls="transport-${slot.id}" aria-expanded="false">${transportSummary(dayKey, slot, place)} ▾</button>
+        </div>
+        <div class="transport-options" id="transport-${slot.id}" hidden>${optionHtml}</div>`;
     }
 
     function renderSlot(slot, dayKey) {
@@ -2210,13 +2504,14 @@
           <div class="card-top">
             <div class="time-pill">${slotDisplayTime(dayKey, slot)}</div>
             <div class="card-body">
-              <h3>${place.name}<span class="status-pill status-${st}" data-status-slot="${slot.id}">${statusLabel(st)}</span>${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
+              <h3><button type="button" class="place-title" data-place-detail="${placeId}" data-slot="${slot.id}" data-day="${dayKey}" aria-haspopup="dialog">${escapeHtml(place.name)}</button><span class="status-pill status-${st}" data-status-slot="${slot.id}">${statusLabel(st)}</span>${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
               <p class="addr">${place.addr}</p>
               <p class="do">${place.do}</p>
-              <div data-dist-slot="${slot.id}">${distHtml(place)}</div>
+              <div data-dist-slot="${slot.id}">${distHtml(place, false, selectedTransport(dayKey, slot, place))}</div>
+              ${renderTransport(dayKey, slot, place)}
               ${swapHtml}
               <div class="actions">
-                <a class="btn btn-primary" href="${mapsUrl(place, geo.ok ? geo : null)}" data-maps-place="${placeId}" target="_blank" rel="noopener">Maps</a>
+                <a class="btn btn-primary" href="${mapsUrl(place, geo.ok ? geo : transportOrigin(dayKey, slot), selectedTransport(dayKey, slot, place))}" data-maps-place="${placeId}" data-maps-slot="${slot.id}" target="_blank" rel="noopener">Maps</a>
                 ${place.ticketUrl ? `<a class="btn btn-soft" href="${place.ticketUrl}" target="_blank" rel="noopener">${place.ticketLabel || "Buy tickets"}</a>` : ""}
                 <button type="button" class="btn ${done ? "btn-ghost" : "btn-ok"} toggle-done" data-slot="${slot.id}">${done ? "Undo" : "Done"}</button>
                 <span class="move-btns" role="group" aria-label="Reorder">
@@ -2276,7 +2571,7 @@
           <td>${row.label}</td>
           <td>${row.locked
             ? `<strong>$${amt.toFixed(2)}</strong>`
-            : `<input type="number" min="0" step="0.01" data-budget="${row.id}" value="${amt}" />`}</td>
+            : `<input type="number" min="0" step="0.01" data-budget="${row.id}" aria-label="${escapeHtml(row.label)} amount" value="${amt}" />`}</td>
           <td style="color:var(--muted);font-size:0.75rem;">${row.locked ? "locked" : "edit"}</td>
         </tr>`;
       }).join("");
@@ -2334,6 +2629,7 @@
 
     /** Time follows position in the day: 1st stop gets earliest plan time, etc. */
     function slotDisplayTime(dayKey, slot) {
+      if (state.planTimes && state.planTimes[slot.id]) return state.planTimes[slot.id];
       const ordered = orderedSlots(dayKey);
       const idx = ordered.findIndex(s => s.id === slot.id);
       const times = dayPlanTimes(dayKey);
@@ -2404,10 +2700,12 @@
       const title = document.getElementById("nextTitle");
       const meta = document.getElementById("nextMeta");
       const go = document.getElementById("nextGo");
+      const replan = document.getElementById("replanBtn");
       if (!next) {
         title.textContent = "You’re clear — enjoy the drive home";
         meta.textContent = "All stops marked done";
         if (go) { go.hidden = true; delete go.dataset.place; }
+        if (replan) replan.hidden = true;
         return;
       }
       const placeId = activePlaceId(next.slot);
@@ -2415,14 +2713,17 @@
       const dayLabel = { fri: "Friday", sat: "Saturday", sun: "Sunday" }[next.day];
       const st = slotTimingStatus(next.day, next.slot);
       title.textContent = place.name;
-      const distBits = distHtml(place, true);
+      const distBits = distHtml(place, true, selectedTransport(next.day, next.slot, place));
       meta.innerHTML = '<span class="status-pill status-' + st + '">' + statusLabel(st) + "</span> " +
         dayLabel + " · " + slotDisplayTime(next.day, next.slot) + " · " + place.addr +
         '<br><span id="nextDist" data-place="' + placeId + '">' + distBits + "</span>";
       if (go) {
         go.hidden = false;
         go.dataset.place = placeId;
-        go.href = mapsUrl(place, geo.ok ? geo : null);
+        go.href = mapsUrl(place, geo.ok ? geo : transportOrigin(next.day, next.slot), selectedTransport(next.day, next.slot, place));
+      }
+      if (replan) {
+        replan.hidden = !lateDoneAnchor();
       }
     }
 
@@ -2456,22 +2757,18 @@
         return;
       }
       if (!state.nearDismiss) state.nearDismiss = {};
-      let best = null;
-      let bestKm = 999;
-      for (const day of ["fri", "sat", "sun"]) {
-        for (const slot of orderedSlots(day)) {
-          if (state.done[slot.id]) continue;
-          if (state.nearDismiss[slot.id]) continue;
-          const place = places[activePlaceId(slot)];
-          if (place.lat == null) continue;
-          const km = haversineKm(geo, place);
-          if (km * 1000 <= 200 && km < bestKm) {
-            bestKm = km;
-            best = { day, slot, place, km };
-          }
-        }
+      const next = firstIncomplete();
+      if (!next || state.nearDismiss[next.slot.id]) {
+        hideNearPrompt();
+        return;
       }
-      showNearPrompt(best);
+      const place = places[activePlaceId(next.slot)];
+      if (!place || place.lat == null) {
+        hideNearPrompt();
+        return;
+      }
+      const km = haversineKm(geo, place);
+      showNearPrompt(km * 1000 <= 200 ? { day: next.day, slot: next.slot, place, km } : null);
     }
 
     function updateProgress() {
@@ -2549,13 +2846,16 @@
       if (e.target.matches('input[type="checkbox"][data-key]')) {
         const key = e.target.dataset.key;
         state[key][e.target.id] = e.target.checked;
+        clockTouch(key === "checks" ? "checks" : "pack", e.target.id);
         logActivity((e.target.checked ? "checked" : "unchecked") + " · " + (e.target.nextElementSibling?.textContent || e.target.id));
         queuePush();
         renderAll();
         renderActivity();
       }
       if (e.target.matches("input[data-budget]")) {
-        state.budget[e.target.dataset.budget] = parseFloat(e.target.value) || 0;
+        const budgetId = e.target.dataset.budget;
+        state.budget[budgetId] = parseFloat(e.target.value) || 0;
+        clockTouch("budget", budgetId);
         logActivity("updated budget · " + e.target.dataset.budget);
         queuePush();
         renderBudget();
@@ -2628,6 +2928,7 @@
         clockTouch("notes", e.target.dataset.note);
         // debounce activity for notes
         clearTimeout(window.__noteLog);
+        localChangeSeq += 1;
         window.__noteLog = setTimeout(() => {
           logActivity("edited a note");
           queuePush();
@@ -2648,14 +2949,67 @@
     });
 
 
+    let placeSheetPlace = null;
+    let placeReturnFocus = null;
     let pickerSlot = null;
+    let pickerReturnFocus = null;
+
+    function closePlaceSheet() {
+      const sheet = document.getElementById("placeSheet");
+      if (!sheet) return;
+      const returnFocus = placeReturnFocus;
+      sheet.classList.remove("show");
+      sheet.hidden = true;
+      sheet.setAttribute("aria-hidden", "true");
+      placeSheetPlace = null;
+      placeReturnFocus = null;
+      requestAnimationFrame(() => returnFocus?.focus());
+    }
+
+    function openPlaceSheet(placeId, slotId, dayKey) {
+      const place = places[placeId];
+      const sheet = document.getElementById("placeSheet");
+      if (!place || !sheet) return;
+      const slot = [...days.fri, ...days.sat, ...days.sun].find(item => item.id === slotId);
+      const mode = slot ? selectedTransport(dayKey, slot, place) : defaultTransport(place);
+      const origin = slot ? transportOrigin(dayKey, slot) : null;
+      placeSheetPlace = placeId;
+      placeReturnFocus = document.activeElement;
+      document.getElementById("placeTitle").textContent = place.name;
+      document.getElementById("placeAddress").textContent = place.addr;
+      document.getElementById("placeDescription").textContent = place.do;
+      document.getElementById("placeParking").textContent = parkingLabel(place);
+      document.getElementById("placeGoogle").href = place.maps;
+      const directions = document.getElementById("placeDirections");
+      directions.href = mapsUrl(place, geo.ok ? geo : origin, mode);
+      directions.textContent = transportLabel(mode) + " directions";
+      const official = document.getElementById("placeOfficial");
+      if (place.ticketUrl) {
+        official.hidden = false;
+        official.href = place.ticketUrl;
+        official.textContent = place.ticketLabel || "Official site";
+      } else {
+        official.hidden = true;
+      }
+      sheet.hidden = false;
+      sheet.classList.add("show");
+      sheet.setAttribute("aria-hidden", "false");
+      requestAnimationFrame(() => document.getElementById("placeClose")?.focus());
+    }
 
     function closePicker() {
       const sheet = document.getElementById("pickerSheet");
       if (!sheet) return;
+      const returnSlot = pickerSlot;
+      const returnFocus = pickerReturnFocus;
       sheet.classList.remove("show");
       sheet.hidden = true;
       pickerSlot = null;
+      pickerReturnFocus = null;
+      requestAnimationFrame(() => {
+        const replacement = returnSlot && document.querySelector(`[data-slot="${returnSlot}"] .open-picker`);
+        (replacement || returnFocus)?.focus();
+      });
     }
 
     function openPicker(slotId, options, selected) {
@@ -2664,6 +3018,7 @@
       const title = document.getElementById("pickerTitle");
       if (!sheet || !box) return;
       pickerSlot = slotId;
+      pickerReturnFocus = document.activeElement;
       title.textContent = "Swap stop";
       box.innerHTML = options.map(id => {
         const p = places[id];
@@ -2673,9 +3028,89 @@
       }).join("");
       sheet.hidden = false;
       sheet.classList.add("show");
+      requestAnimationFrame(() => box.querySelector(".picker-option.active")?.focus() || document.getElementById("pickerCancel")?.focus());
     }
 
+    document.addEventListener("keydown", (e) => {
+      if (!pickerSlot) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closePicker();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const sheet = document.getElementById("pickerSheet");
+      const focusable = sheet ? [...sheet.querySelectorAll("button:not([disabled])")] : [];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (!placeSheetPlace) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closePlaceSheet();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const sheet = document.getElementById("placeSheet");
+      const focusable = sheet ? [...sheet.querySelectorAll("button:not([disabled]), a:not([hidden])")] : [];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
     document.body.addEventListener("click", (e) => {
+      const detail = e.target.closest("[data-place-detail]");
+      if (detail) {
+        openPlaceSheet(detail.dataset.placeDetail, detail.dataset.slot, detail.dataset.day);
+        return;
+      }
+      if (e.target.id === "placeClose" || e.target.id === "placeSheet") {
+        closePlaceSheet();
+        return;
+      }
+      const transportToggle = e.target.closest("[data-transport-toggle]");
+      if (transportToggle) {
+        const options = document.getElementById("transport-" + transportToggle.dataset.transportToggle);
+        if (options) {
+          options.hidden = !options.hidden;
+          transportToggle.setAttribute("aria-expanded", String(!options.hidden));
+        }
+        return;
+      }
+      const transportOption = e.target.closest("[data-transport-mode]");
+      if (transportOption && !transportOption.disabled) {
+        const slot = [...days.fri, ...days.sat, ...days.sun].find(item => item.id === transportOption.dataset.slot);
+        if (slot) {
+          state.transport[slot.id] = transportOption.dataset.transportMode;
+          clockTouch("transport", slot.id);
+          logActivity("set travel mode · " + transportLabel(transportOption.dataset.transportMode));
+          queuePush();
+          renderAll();
+          renderActivity();
+        }
+        return;
+      }
+      if (e.target.id === "replanBtn") {
+        replanRemaining();
+        return;
+      }
       const open = e.target.closest(".open-picker");
       if (open) {
         const opts = (open.dataset.options || "").split(",").filter(Boolean);
