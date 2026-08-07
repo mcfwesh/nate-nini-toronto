@@ -64,7 +64,7 @@ async function preparePage(page) {
   });
 }
 
-async function openGuide(page, path = "/") {
+async function openGuide(page, path = ".") {
   await preparePage(page);
   await page.goto(path);
   await expect(page.locator("body")).toHaveClass(/has-who/);
@@ -73,7 +73,7 @@ async function openGuide(page, path = "/") {
 }
 
 test("loads both entry paths with the same trip shell", async ({ page }) => {
-  for (const path of ["/", "/trip-guide.html"]) {
+  for (const path of [".", "trip-guide.html"]) {
     await openGuide(page, path);
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(page.locator(".dock")).toBeVisible();
