@@ -1725,7 +1725,7 @@
         <article class="card ${done ? "done" : ""}" data-slot="${slot.id}" data-day="${dayKey}">
           <span class="node" aria-hidden="true"></span>
           <div class="card-top">
-            <div class="time-pill">${slot.time}</div>
+            <div class="time-pill">${slotDisplayTime(dayKey, slot)}</div>
             <div class="card-body">
               <h3>${place.name}<span class="status-pill status-${st}" data-status-slot="${slot.id}">${statusLabel(st)}</span>${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
               <p class="addr">${place.addr}</p>
@@ -1762,7 +1762,7 @@
           <h2 class="section-title">${title}</h2>
           <button type="button" class="btn btn-ghost reset-day" data-day="${key}">Reset ${dayName} order</button>
         </div>
-        <p class="reorder-hint">Reorder with ↑ ↓ · Next follows your list</p>
+        <p class="reorder-hint">↑ ↓ moves a stop into that time · Now/Next follow the new order</p>
         <div class="timeline" data-day="${key}">` +
         orderedSlots(key).map(s => renderSlot(s, key)).join("") +
         `</div>`;
@@ -1845,6 +1845,23 @@
       return out;
     }
 
+    function dayPlanTimes(dayKey) {
+      return (days[dayKey] || []).map(s => s.time);
+    }
+
+    /** Time follows position in the day: 1st stop gets earliest plan time, etc. */
+    function slotDisplayTime(dayKey, slot) {
+      const ordered = orderedSlots(dayKey);
+      const idx = ordered.findIndex(s => s.id === slot.id);
+      const times = dayPlanTimes(dayKey);
+      if (idx >= 0 && times[idx]) return times[idx];
+      return slot.time;
+    }
+
+    function slotScheduleDate(dayKey, slot) {
+      return parseTimeOnDay(dayKey, slotDisplayTime(dayKey, slot));
+    }
+
     function saveDayOrder(dayKey, ids) {
       if (!state.order) state.order = { fri: [], sat: [], sun: [] };
       state.order[dayKey] = ids.slice();
@@ -1873,7 +1890,7 @@
       for (const day of ["fri", "sat", "sun"]) {
         for (const slot of orderedSlots(day)) {
           if (!state.done[slot.id]) {
-            return { day, slot, t: parseTimeOnDay(day, slot.time) };
+            return { day, slot, t: slotScheduleDate(day, slot) };
           }
         }
       }
@@ -1882,7 +1899,7 @@
 
     function slotTimingStatus(dayKey, slot) {
       if (state.done[slot.id]) return "done";
-      const t = parseTimeOnDay(dayKey, slot.time);
+      const t = slotScheduleDate(dayKey, slot);
       if (!t) return "later";
       const now = Date.now();
       const diff = now - t.getTime();
@@ -1917,7 +1934,7 @@
       title.textContent = place.name;
       const distBits = distHtml(place, true);
       meta.innerHTML = '<span class="status-pill status-' + st + '">' + statusLabel(st) + "</span> " +
-        dayLabel + " · " + next.slot.time + " · " + place.addr +
+        dayLabel + " · " + slotDisplayTime(next.day, next.slot) + " · " + place.addr +
         '<br><span id="nextDist" data-place="' + placeId + '">' + distBits + "</span>";
       if (go) {
         go.hidden = false;
