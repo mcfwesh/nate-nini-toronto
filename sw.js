@@ -1,10 +1,12 @@
-const CACHE = "nate-nini-toronto-v4";
+const CACHE = "nate-nini-toronto-v5";
 const ASSETS = [
   "./",
   "./index.html",
   "./trip-guide.html",
   "./manifest.webmanifest",
   "./icon.svg",
+  "./icon-180.png",
+  "./icon-512.png",
   "./photo-couple.png",
   "./photo-nate.png",
   "./photo-nini.png"
