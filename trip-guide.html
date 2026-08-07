@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-title" content="Nate & Nini" />
   <meta name="description" content="Nate & Nini Bear — Ottawa to Toronto trip guide, Aug 7–9 2026" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="photo-couple.png" type="image/png" />
-  <link rel="apple-touch-icon" href="photo-couple.png" />
+  <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512" />
+  <link rel="apple-touch-icon" href="icon-180.png" sizes="180x180" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;500;600;700&display=swap" rel="stylesheet" />
@@ -18,14 +18,14 @@
   <style>
 
     :root {
-      --ink: #f3efe6;
-      --muted: #9e978c;
+      --ink: #f7f3eb;
+      --muted: #c2bab0;
       --bg: #12141a;
       --bg-deep: #1a1d26;
       --card: #1c2029;
       --accent: #d4a84b;
       --accent-soft: rgba(212, 168, 75, 0.16);
-      --lake: #f3efe6;
+      --lake: #f7f3eb;
       --lake-mid: #d4a84b;
       --gold: #d4a84b;
       --ok: #6fbf8f;
@@ -523,6 +523,40 @@
     }
     .gps-live.on { color: var(--ok); }
 
+
+    .status-pill {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.45rem;
+      border-radius: 8px;
+      margin-left: 0.35rem;
+      vertical-align: middle;
+      font-family: var(--sans);
+    }
+    .status-now { background: var(--gold); color: #12141a; }
+    .status-soon { background: rgba(212,168,75,0.22); color: #f0d090; }
+    .status-later { background: var(--bg-deep); color: var(--muted); }
+    .status-overdue { background: rgba(232, 120, 100, 0.22); color: #f0a090; }
+    .status-done { background: rgba(111,191,143,0.2); color: var(--ok); }
+    .near-prompt {
+      display: none;
+      position: sticky;
+      top: 5.6rem;
+      z-index: 45;
+      margin: 0 0 0.85rem;
+      padding: 0.95rem 1rem;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid rgba(212,168,75,0.55);
+      box-shadow: var(--shadow);
+    }
+    .near-prompt.show { display: block; }
+    .near-prompt strong { display: block; margin-bottom: 0.25rem; color: var(--ink); }
+    .near-prompt p { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.9rem; }
+
     .hero-photo { display: none; } /* replaced by .hero-bg */
 
   </style>
@@ -574,6 +608,15 @@
       </p>
       <button type="button" class="btn btn-primary" id="installBtn" hidden>Install app</button>
       <button type="button" class="btn btn-ghost" id="dismissInstall">Got it</button>
+    </div>
+
+    <div id="nearPrompt" class="near-prompt" role="dialog" aria-live="polite">
+      <strong id="nearTitle">Are you here?</strong>
+      <p id="nearMeta"></p>
+      <div class="actions">
+        <button type="button" class="btn btn-ok" id="nearDoneBtn">Mark done</button>
+        <button type="button" class="btn btn-ghost" id="nearDismissBtn">Not now</button>
+      </div>
     </div>
 
     <div class="sticky-now" id="stickyNow" aria-live="polite">
@@ -995,7 +1038,8 @@
       updatedAt: null,
       updatedBy: null,
       panel: "fri",
-      installDismissed: false
+      installDismissed: false,
+      nearDismiss: {}
     }, loadState());
 
     let who = localStorage.getItem(WHO_KEY) || "";
@@ -1203,6 +1247,7 @@
       showGpsBanner(false);
       setGpsLive("Live location on · low-power updates while this guide is open", true);
       refreshDistancesOnly();
+      checkNearStops();
     }
 
     function onGeoError(err) {
@@ -1282,11 +1327,12 @@
       }
     }
 
-    function renderSlot(slot) {
+    function renderSlot(slot, dayKey) {
       const placeId = activePlaceId(slot);
       const place = places[placeId];
       const done = !!state.done[slot.id];
       const note = state.notes[slot.id] || "";
+      const st = slotTimingStatus(dayKey, slot);
       const options = [slot.default, ...slot.swaps].filter((v, i, a) => a.indexOf(v) === i);
 
       let swapHtml = "";
@@ -1306,7 +1352,7 @@
           <div class="card-top">
             <div class="time-pill">${slot.time}</div>
             <div class="card-body">
-              <h3>${place.name}${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
+              <h3>${place.name}<span class="status-pill status-${st}" data-status-slot="${slot.id}">${statusLabel(st)}</span>${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
               <p class="addr">${place.addr}</p>
               <p class="do">${place.do}</p>
               <div data-dist-slot="${slot.id}">${distHtml(place)}</div>
@@ -1326,7 +1372,7 @@
 
     function renderDay(key, title) {
       const el = document.getElementById("panel-" + key);
-      el.innerHTML = `<h2 class="section-title">${title}</h2><div class="timeline">` + days[key].map(renderSlot).join("") + `</div>`;
+      el.innerHTML = `<h2 class="section-title">${title}</h2><div class="timeline">` + days[key].map(s => renderSlot(s, key)).join("") + `</div>`;
     }
 
     function renderChecks(listId, items, stateKey) {
@@ -1385,34 +1431,38 @@
       return new Date(`${dayMap[dayKey]}T${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}:00`);
     }
 
-    function updateWhatsNext() {
-      const now = new Date();
-      const order = ["fri", "sat", "sun"];
-      let next = null;
-      for (const day of order) {
+    function firstIncomplete() {
+      for (const day of ["fri", "sat", "sun"]) {
         for (const slot of days[day]) {
-          if (state.done[slot.id]) continue;
-          const t = parseTimeOnDay(day, slot.time);
-          if (!t) continue;
-          if (t >= new Date(now.getTime() - 45 * 60000)) {
-            next = { day, slot, t };
-            break;
+          if (!state.done[slot.id]) {
+            return { day, slot, t: parseTimeOnDay(day, slot.time) };
           }
         }
-        if (next) break;
       }
-      if (!next) {
-        // fallback: first incomplete
-        for (const day of order) {
-          for (const slot of days[day]) {
-            if (!state.done[slot.id]) {
-              next = { day, slot, t: parseTimeOnDay(day, slot.time) };
-              break;
-            }
-          }
-          if (next) break;
-        }
-      }
+      return null;
+    }
+
+    function slotTimingStatus(dayKey, slot) {
+      if (state.done[slot.id]) return "done";
+      const t = parseTimeOnDay(dayKey, slot.time);
+      if (!t) return "later";
+      const now = Date.now();
+      const diff = now - t.getTime();
+      const abs = Math.abs(diff);
+      if (diff > 30 * 60000) return "overdue";
+      if (abs <= 30 * 60000) return "now";
+      const next = firstIncomplete();
+      if (next && next.slot.id === slot.id) return "soon";
+      if (diff < 0 && abs <= 2 * 3600000) return "soon";
+      return "later";
+    }
+
+    function statusLabel(status) {
+      return ({ now: "Now", soon: "Soon", later: "Later", overdue: "Overdue", done: "Done" })[status] || "";
+    }
+
+    function updateWhatsNext() {
+      const next = firstIncomplete();
       const title = document.getElementById("nextTitle");
       const meta = document.getElementById("nextMeta");
       const go = document.getElementById("nextGo");
@@ -1425,15 +1475,65 @@
       const placeId = activePlaceId(next.slot);
       const place = places[placeId];
       const dayLabel = { fri: "Friday", sat: "Saturday", sun: "Sunday" }[next.day];
+      const st = slotTimingStatus(next.day, next.slot);
       title.textContent = place.name;
       const distBits = distHtml(place, true);
-      meta.innerHTML = dayLabel + " · " + next.slot.time + " · " + place.addr +
+      meta.innerHTML = '<span class="status-pill status-' + st + '">' + statusLabel(st) + "</span> " +
+        dayLabel + " · " + next.slot.time + " · " + place.addr +
         '<br><span id="nextDist" data-place="' + placeId + '">' + distBits + "</span>";
       if (go) {
         go.hidden = false;
         go.dataset.place = placeId;
         go.href = mapsUrl(place, geo.ok ? geo : null);
       }
+    }
+
+    let nearCandidate = null;
+
+    function hideNearPrompt() {
+      const el = document.getElementById("nearPrompt");
+      if (el) el.classList.remove("show");
+      nearCandidate = null;
+    }
+
+    function showNearPrompt(candidate) {
+      const el = document.getElementById("nearPrompt");
+      if (!el) return;
+      if (!candidate) {
+        hideNearPrompt();
+        return;
+      }
+      nearCandidate = candidate;
+      document.getElementById("nearTitle").textContent =
+        "Are you at " + candidate.place.name + "?";
+      const kmStr = candidate.km < 1 ? Math.round(candidate.km * 1000) + " m away" : candidate.km.toFixed(1) + " km away";
+      document.getElementById("nearMeta").textContent =
+        "You’re close (" + kmStr + "). Mark done if you’re here — even if it’s early or late.";
+      el.classList.add("show");
+    }
+
+    function checkNearStops() {
+      if (!geo.ok) {
+        hideNearPrompt();
+        return;
+      }
+      if (!state.nearDismiss) state.nearDismiss = {};
+      let best = null;
+      let bestKm = 999;
+      for (const day of ["fri", "sat", "sun"]) {
+        for (const slot of days[day]) {
+          if (state.done[slot.id]) continue;
+          if (state.nearDismiss[slot.id]) continue;
+          const place = places[activePlaceId(slot)];
+          if (place.lat == null) continue;
+          const km = haversineKm(geo, place);
+          if (km * 1000 <= 200 && km < bestKm) {
+            bestKm = km;
+            best = { day, slot, place, km };
+          }
+        }
+      }
+      showNearPrompt(best);
     }
 
     function updateProgress() {
@@ -1591,6 +1691,41 @@
       installBtn.hidden = true;
     });
 
+
+
+    document.getElementById("nearDoneBtn").addEventListener("click", () => {
+      if (!nearCandidate) return;
+      const id = nearCandidate.slot.id;
+      state.done[id] = true;
+      if (!state.doneMeta) state.doneMeta = {};
+      state.doneMeta[id] = { who: currentWho(), at: new Date().toISOString() };
+      logActivity("marked done (nearby) · " + nearCandidate.place.name);
+      hideNearPrompt();
+      queuePush();
+      renderAll();
+    });
+
+    document.getElementById("nearDismissBtn").addEventListener("click", () => {
+      if (!nearCandidate) return;
+      if (!state.nearDismiss) state.nearDismiss = {};
+      state.nearDismiss[nearCandidate.slot.id] = true;
+      saveState(state);
+      hideNearPrompt();
+      queuePush();
+    });
+
+    setInterval(() => {
+      updateWhatsNext();
+      document.querySelectorAll("[data-status-slot]").forEach(el => {
+        const id = el.getAttribute("data-status-slot");
+        const found = ["fri", "sat", "sun"].flatMap(d => days[d].map(s => [d, s])).find(([, s]) => s.id === id);
+        if (!found) return;
+        const [dayKey, slot] = found;
+        const st = slotTimingStatus(dayKey, slot);
+        el.className = "status-pill status-" + st;
+        el.textContent = statusLabel(st);
+      });
+    }, 60000);
 
     const enableGpsBtn = document.getElementById("enableGpsBtn");
     if (enableGpsBtn) {
