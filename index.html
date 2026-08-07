@@ -1205,11 +1205,12 @@
       refreshDistancesOnly();
     }
 
-    function onGeoError() {
+    function onGeoError(err) {
       geo.ok = false;
       showGpsBanner(true);
       setGpsLive("Location off — distances hidden", false);
       refreshDistancesOnly();
+      if (err && err.code === 1) stopGps();
     }
 
     function pollGpsOnce() {
@@ -1595,6 +1596,7 @@
     if (enableGpsBtn) {
       enableGpsBtn.addEventListener("click", () => {
         showGpsBanner(false);
+        stopGps();
         startGps();
       });
     }
