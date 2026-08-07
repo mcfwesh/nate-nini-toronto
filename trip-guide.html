@@ -38,7 +38,7 @@
       --sans: "DM Sans", system-ui, sans-serif;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; color-scheme: dark; }
     body {
       margin: 0;
       font-family: var(--sans);
@@ -330,6 +330,7 @@
       box-shadow: var(--shadow);
       transition: opacity 0.25s ease, transform 0.2s ease, border-color 0.2s ease;
       animation: fadeSlide 0.4s ease both;
+      touch-action: pan-y;
     }
     .card:nth-child(1) { animation-delay: 0.02s; }
     .card:nth-child(2) { animation-delay: 0.06s; }
@@ -385,10 +386,17 @@
       letter-spacing: 0.06em; text-transform: uppercase;
       color: var(--muted); margin-bottom: 0.35rem;
     }
-    select.swap {
+    select.swap, select {
       width: 100%; font: inherit; font-weight: 500;
       padding: 0.7rem 0.8rem; border-radius: 14px;
-      border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+      border: 1px solid var(--line);
+      background: var(--bg-deep);
+      color: var(--ink);
+      color-scheme: dark;
+    }
+    select.swap option, select option {
+      background: #1a1d26;
+      color: #f7f3eb;
     }
     .actions {
       display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.85rem;
@@ -481,6 +489,46 @@
       margin-right: 0;
     }
     #panel-tools .node { display: none; }
+
+    .day-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; margin: 1.1rem 0 0.85rem;
+    }
+    .day-head .section-title { margin: 0; flex: 1; }
+    .day-head .btn { flex: 0 0 auto; font-size: 0.75rem; padding: 0.5rem 0.7rem; }
+    .card.dragging {
+      opacity: 0.92;
+      border-color: var(--gold);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+      z-index: 5;
+    }
+    .card-top { position: relative; }
+    .drag-handle {
+      flex: 0 0 auto;
+      width: 2.2rem;
+      align-self: stretch;
+      border: 1px solid var(--line);
+      background: var(--bg-deep);
+      color: var(--gold);
+      border-radius: 12px;
+      cursor: grab;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      padding: 0.35rem 0;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .drag-handle:active { cursor: grabbing; background: rgba(212,168,75,0.18); }
+    .drag-hint {
+      margin: 0 0 0.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
 
 
     .gps-banner {
@@ -1039,7 +1087,8 @@
       updatedBy: null,
       panel: "fri",
       installDismissed: false,
-      nearDismiss: {}
+      nearDismiss: {},
+      order: { fri: [], sat: [], sun: [] }
     }, loadState());
 
     let who = localStorage.getItem(WHO_KEY) || "";
@@ -1101,7 +1150,7 @@
         if (!res.ok) throw new Error("HTTP " + res.status);
         const remote = await res.json();
         applyingRemote = true;
-        const keys = ["swaps","done","doneMeta","notes","checks","pack","budget","activity","updatedAt","updatedBy"];
+        const keys = ["swaps","done","doneMeta","notes","checks","pack","budget","activity","updatedAt","updatedBy","order","nearDismiss"];
         keys.forEach(k => {
           if (remote[k] !== undefined) state[k] = remote[k];
         });
@@ -1132,6 +1181,8 @@
           pack: state.pack,
           budget: state.budget,
           activity: state.activity || [],
+          order: state.order || { fri: [], sat: [], sun: [] },
+          nearDismiss: state.nearDismiss || {},
           updatedAt: state.updatedAt,
           updatedBy: state.updatedBy
         };
@@ -1347,9 +1398,10 @@
       }
 
       return `
-        <article class="card ${done ? "done" : ""}" data-slot="${slot.id}">
+        <article class="card ${done ? "done" : ""}" data-slot="${slot.id}" data-day="${dayKey}">
           <span class="node" aria-hidden="true"></span>
           <div class="card-top">
+            <button type="button" class="drag-handle" aria-label="Drag to reorder" title="Drag to reorder">⠿</button>
             <div class="time-pill">${slot.time}</div>
             <div class="card-body">
               <h3>${place.name}<span class="status-pill status-${st}" data-status-slot="${slot.id}">${statusLabel(st)}</span>${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
@@ -1372,7 +1424,70 @@
 
     function renderDay(key, title) {
       const el = document.getElementById("panel-" + key);
-      el.innerHTML = `<h2 class="section-title">${title}</h2><div class="timeline">` + days[key].map(s => renderSlot(s, key)).join("") + `</div>`;
+      const dayName = { fri: "Friday", sat: "Saturday", sun: "Sunday" }[key];
+      el.innerHTML =
+        `<div class="day-head">
+          <h2 class="section-title">${title}</h2>
+          <button type="button" class="btn btn-ghost reset-day" data-day="${key}">Reset ${dayName} order</button>
+        </div>
+        <p class="drag-hint">Drag ⠿ to reorder — What’s next, status, and maps follow your order</p>
+        <div class="timeline" data-day="${key}">` +
+        orderedSlots(key).map(s => renderSlot(s, key)).join("") +
+        `</div>`;
+      bindDayDrag(key);
+    }
+
+    function bindDayDrag(dayKey) {
+      const timeline = document.querySelector("#panel-" + dayKey + " .timeline");
+      if (!timeline || timeline.dataset.dragBound === "1") return;
+      timeline.dataset.dragBound = "1";
+      let dragEl = null;
+      let activeHandle = null;
+
+      const onMove = (e) => {
+        if (!dragEl) return;
+        const y = e.clientY;
+        const cards = [...timeline.querySelectorAll(".card")].filter(c => c !== dragEl);
+        let placed = false;
+        for (const c of cards) {
+          const r = c.getBoundingClientRect();
+          if (y < r.top + r.height / 2) {
+            timeline.insertBefore(dragEl, c);
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) timeline.appendChild(dragEl);
+      };
+
+      const onEnd = (e) => {
+        if (!dragEl) return;
+        dragEl.classList.remove("dragging");
+        if (activeHandle) {
+          try { activeHandle.releasePointerCapture(e.pointerId); } catch (_) {}
+          activeHandle.removeEventListener("pointermove", onMove);
+          activeHandle.removeEventListener("pointerup", onEnd);
+          activeHandle.removeEventListener("pointercancel", onEnd);
+        }
+        const ids = [...timeline.querySelectorAll(".card")].map(c => c.dataset.slot);
+        saveDayOrder(dayKey, ids);
+        dragEl = null;
+        activeHandle = null;
+      };
+
+      timeline.addEventListener("pointerdown", (e) => {
+        const handle = e.target.closest(".drag-handle");
+        if (!handle) return;
+        dragEl = handle.closest(".card");
+        if (!dragEl) return;
+        activeHandle = handle;
+        dragEl.classList.add("dragging");
+        handle.addEventListener("pointermove", onMove);
+        handle.addEventListener("pointerup", onEnd);
+        handle.addEventListener("pointercancel", onEnd);
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
     }
 
     function renderChecks(listId, items, stateKey) {
@@ -1431,9 +1546,43 @@
       return new Date(`${dayMap[dayKey]}T${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}:00`);
     }
 
+    function orderedSlots(dayKey) {
+      const base = days[dayKey] || [];
+      if (!state.order) state.order = { fri: [], sat: [], sun: [] };
+      const order = state.order[dayKey] || [];
+      if (!order.length) return base.slice();
+      const map = {};
+      base.forEach(s => { map[s.id] = s; });
+      const out = [];
+      order.forEach(id => { if (map[id]) out.push(map[id]); });
+      base.forEach(s => { if (!out.includes(s)) out.push(s); });
+      return out;
+    }
+
+    function saveDayOrder(dayKey, ids) {
+      if (!state.order) state.order = { fri: [], sat: [], sun: [] };
+      state.order[dayKey] = ids.slice();
+      logActivity("reordered " + ({ fri: "Friday", sat: "Saturday", sun: "Sunday" }[dayKey] || dayKey));
+      queuePush();
+      updateWhatsNext();
+      document.querySelectorAll("[data-status-slot]").forEach(el => {
+        const id = el.getAttribute("data-status-slot");
+        let found = null;
+        for (const d of ["fri", "sat", "sun"]) {
+          const s = orderedSlots(d).find(x => x.id === id);
+          if (s) { found = [d, s]; break; }
+        }
+        if (!found) return;
+        const st = slotTimingStatus(found[0], found[1]);
+        el.className = "status-pill status-" + st;
+        el.textContent = statusLabel(st);
+      });
+      checkNearStops();
+    }
+
     function firstIncomplete() {
       for (const day of ["fri", "sat", "sun"]) {
-        for (const slot of days[day]) {
+        for (const slot of orderedSlots(day)) {
           if (!state.done[slot.id]) {
             return { day, slot, t: parseTimeOnDay(day, slot.time) };
           }
@@ -1521,7 +1670,7 @@
       let best = null;
       let bestKm = 999;
       for (const day of ["fri", "sat", "sun"]) {
-        for (const slot of days[day]) {
+        for (const slot of orderedSlots(day)) {
           if (state.done[slot.id]) continue;
           if (state.nearDismiss[slot.id]) continue;
           const place = places[activePlaceId(slot)];
@@ -1623,6 +1772,16 @@
     });
 
     document.body.addEventListener("click", (e) => {
+      const resetBtn = e.target.closest(".reset-day");
+      if (resetBtn) {
+        const dayKey = resetBtn.dataset.day;
+        if (!state.order) state.order = { fri: [], sat: [], sun: [] };
+        state.order[dayKey] = [];
+        logActivity("reset " + dayKey + " order to plan");
+        queuePush();
+        renderAll();
+        return;
+      }
       const btn = e.target.closest(".toggle-done");
       if (!btn) return;
       const id = btn.dataset.slot;
@@ -1718,10 +1877,13 @@
       updateWhatsNext();
       document.querySelectorAll("[data-status-slot]").forEach(el => {
         const id = el.getAttribute("data-status-slot");
-        const found = ["fri", "sat", "sun"].flatMap(d => days[d].map(s => [d, s])).find(([, s]) => s.id === id);
+        let found = null;
+        for (const d of ["fri", "sat", "sun"]) {
+          const s = orderedSlots(d).find(x => x.id === id);
+          if (s) { found = [d, s]; break; }
+        }
         if (!found) return;
-        const [dayKey, slot] = found;
-        const st = slotTimingStatus(dayKey, slot);
+        const st = slotTimingStatus(found[0], found[1]);
         el.className = "status-pill status-" + st;
         el.textContent = statusLabel(st);
       });
