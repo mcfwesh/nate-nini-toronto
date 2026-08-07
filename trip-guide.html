@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a3d4a" />
+  <meta name="theme-color" content="#12141a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Nate & Nini" />
@@ -18,19 +18,19 @@
   <style>
 
     :root {
-      --ink: #0c1f26;
-      --muted: #5a7079;
-      --bg: #f2f5f6;
-      --bg-deep: #e4eef1;
-      --card: #ffffff;
-      --accent: #e25b45;
-      --accent-soft: #fdece8;
-      --lake: #0a3d4a;
-      --lake-mid: #156275;
-      --gold: #c9a227;
-      --ok: #1f7a4c;
-      --line: rgba(10, 61, 74, 0.1);
-      --shadow: 0 8px 28px rgba(10, 61, 74, 0.09);
+      --ink: #f3efe6;
+      --muted: #9e978c;
+      --bg: #12141a;
+      --bg-deep: #1a1d26;
+      --card: #1c2029;
+      --accent: #d4a84b;
+      --accent-soft: rgba(212, 168, 75, 0.16);
+      --lake: #f3efe6;
+      --lake-mid: #d4a84b;
+      --gold: #d4a84b;
+      --ok: #6fbf8f;
+      --line: rgba(243, 239, 230, 0.12);
+      --shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
       --radius: 20px;
       --safe-b: env(safe-area-inset-bottom, 0px);
       --dock-h: calc(4.4rem + var(--safe-b));
@@ -79,7 +79,7 @@
     .hero-scrim {
       position: absolute; inset: 0; z-index: 1;
       background:
-        linear-gradient(180deg, rgba(10,61,74,0.15) 0%, rgba(10,61,74,0.25) 35%, rgba(10,61,74,0.92) 100%);
+        linear-gradient(180deg, rgba(18,20,26,0.2) 0%, rgba(18,20,26,0.35) 40%, rgba(18,20,26,0.96) 100%);
     }
     .hero-inner {
       position: relative; z-index: 2;
@@ -142,13 +142,13 @@
     .ring {
       --p: 0;
       width: 44px; height: 44px; border-radius: 50%;
-      background: conic-gradient(#e25b45 calc(var(--p) * 1%), rgba(255,255,255,0.2) 0);
+      background: conic-gradient(var(--gold) calc(var(--p) * 1%), rgba(255,255,255,0.18) 0);
       display: grid; place-items: center;
       flex: 0 0 auto;
     }
     .ring span {
       width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(10,61,74,0.85);
+      background: #12141a;
       display: grid; place-items: center;
       font-size: 0.68rem; font-weight: 700;
     }
@@ -194,8 +194,8 @@
     }
     .who-bar button.active {
       opacity: 1; filter: none;
-      border-color: var(--lake);
-      box-shadow: 0 10px 24px rgba(10, 61, 74, 0.14);
+      border-color: var(--gold);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
     }
     .who-bar button .check {
       display: none;
@@ -215,20 +215,20 @@
       position: sticky; top: 0.65rem; z-index: 40;
       margin: 0.25rem 0 1rem;
       padding: 0.9rem 1rem;
-      background: rgba(10, 61, 74, 0.92);
-      color: #fff;
+      background: rgba(28, 32, 41, 0.94);
+      color: var(--ink);
       border-radius: 18px;
-      box-shadow: 0 12px 32px rgba(10, 61, 74, 0.28);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(212, 168, 75, 0.35);
       animation: riseIn 0.45s ease both;
       display: flex; align-items: center; gap: 0.75rem;
     }
     .sticky-now-text { flex: 1; min-width: 0; }
     .btn-go {
       flex: 0 0 auto;
-      background: #fff;
-      color: var(--lake);
+      background: var(--gold);
+      color: #12141a;
       font-weight: 700;
       font-size: 0.8rem;
       padding: 0.65rem 0.85rem;
@@ -254,7 +254,7 @@
       width: min(480px, 100%);
       z-index: 60;
       padding: 0.45rem 0.75rem calc(0.45rem + var(--safe-b));
-      background: rgba(255,255,255,0.92);
+      background: rgba(18, 20, 26, 0.94);
       backdrop-filter: blur(16px) saturate(1.2);
       border-top: 1px solid var(--line);
       display: grid;
@@ -278,10 +278,10 @@
       background: transparent;
     }
     .dock .tab:active { transform: scale(0.94); }
-    .dock .tab[aria-selected="true"] { color: var(--lake); }
+    .dock .tab[aria-selected="true"] { color: var(--gold); }
     .dock .tab[aria-selected="true"] .ico {
       background: var(--bg-deep);
-      color: var(--lake);
+      color: var(--gold);
     }
 
     .panel { display: none; }
@@ -317,7 +317,7 @@
       position: absolute;
       left: 1.35rem; top: 0.5rem; bottom: 0.5rem;
       width: 2px;
-      background: linear-gradient(180deg, var(--lake-mid), rgba(10,61,74,0.08));
+      background: linear-gradient(180deg, var(--gold), rgba(212,168,75,0.08));
       border-radius: 2px;
     }
     .card {
@@ -347,9 +347,9 @@
       left: -2.05rem; top: 1.15rem;
       width: 14px; height: 14px;
       border-radius: 50%;
-      background: var(--lake);
+      background: var(--gold);
       border: 3px solid var(--bg);
-      box-shadow: 0 0 0 3px rgba(10,61,74,0.15);
+      box-shadow: 0 0 0 3px rgba(212,168,75,0.2);
       z-index: 2;
     }
     .card-top { display: flex; gap: 0.7rem; align-items: flex-start; }
@@ -375,7 +375,7 @@
       letter-spacing: -0.01em;
     }
     .addr { color: var(--muted); font-size: 0.84rem; margin: 0 0 0.45rem; }
-    .do { margin: 0; font-size: 0.93rem; color: #243940; }
+    .do { margin: 0; font-size: 0.93rem; color: var(--ink); }
     .swap-row {
       margin-top: 0.85rem; padding-top: 0.75rem;
       border-top: 1px dashed var(--line);
@@ -401,14 +401,14 @@
       transition: transform 0.12s ease, background 0.15s ease;
     }
     .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--lake); color: #fff; }
-    .btn-soft { background: var(--bg-deep); color: var(--lake); }
+    .btn-primary { background: var(--gold); color: #12141a; }
+    .btn-soft { background: var(--bg-deep); color: var(--ink); }
     .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
     .btn-ok { background: var(--ok); color: #fff; }
     .notes {
       width: 100%; margin-top: 0.65rem; font: inherit;
       padding: 0.7rem 0.8rem; border-radius: 14px;
-      border: 1px solid var(--line); background: #fafbfc;
+      border: 1px solid var(--line); background: var(--bg-deep); color: var(--ink);
       resize: vertical; min-height: 2.6rem;
     }
     .check-list { list-style: none; padding: 0; margin: 0; }
@@ -419,7 +419,7 @@
       transition: border-color 0.15s ease;
     }
     .check-list li.done { border-color: rgba(31,122,76,0.35); }
-    .check-list input { margin-top: 0.15rem; width: 1.15rem; height: 1.15rem; accent-color: var(--lake); }
+    .check-list input { margin-top: 0.15rem; width: 1.15rem; height: 1.15rem; accent-color: var(--gold); }
     .check-list label { flex: 1; cursor: pointer; font-weight: 500; }
     .check-list li.done label { text-decoration: line-through; color: var(--muted); }
     .budget-table { width: 100%; border-collapse: collapse; }
@@ -437,7 +437,7 @@
     }
     .budget-summary {
       margin-top: 1rem; padding: 1rem; border-radius: 18px;
-      background: linear-gradient(145deg, var(--accent-soft), #fff 55%);
+      background: linear-gradient(145deg, var(--accent-soft), var(--card) 55%);
       border: 1px solid var(--line);
     }
     .budget-summary .big {
@@ -462,8 +462,8 @@
       margin-left: 0.3rem; vertical-align: middle;
       font-family: var(--sans);
     }
-    .ticket-tag { color: #fff; background: var(--accent); }
-    .locked-tag { color: var(--lake); background: var(--bg-deep); }
+    .ticket-tag { color: #12141a; background: var(--gold); }
+    .locked-tag { color: var(--gold); background: var(--bg-deep); }
     .activity-list { list-style: none; padding: 0; margin: 0; }
     .activity-list li {
       padding: 0.7rem 0; border-bottom: 1px solid var(--line); font-size: 0.9rem;
@@ -481,6 +481,47 @@
       margin-right: 0;
     }
     #panel-tools .node { display: none; }
+
+
+    .gps-banner {
+      display: none;
+      margin: 0.75rem 0;
+      padding: 0.9rem 1rem;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid rgba(212, 168, 75, 0.45);
+    }
+    .gps-banner.show { display: block; }
+    .gps-banner p { margin: 0 0 0.65rem; font-size: 0.9rem; color: var(--muted); }
+    .dist-line {
+      margin: 0.35rem 0 0;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.01em;
+    }
+    .mode-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #12141a;
+      background: var(--gold);
+      padding: 0.12rem 0.4rem;
+      border-radius: 6px;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+      font-family: var(--sans);
+    }
+    .gps-live {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0 0 0.5rem;
+      min-height: 1.1em;
+    }
+    .gps-live.on { color: var(--ok); }
 
     .hero-photo { display: none; } /* replaced by .hero-bg */
 
@@ -519,6 +560,12 @@
       <button type="button" role="radio" aria-checked="false" data-who="Nini Bear"><img src="photo-nini.png" alt="" /><span>Nini Bear <span class="check" aria-hidden="true">✓</span></span></button>
     </div>
     <p class="sync-status" id="syncStatus">Pick one name on this phone — the other phone picks the other</p>
+    <p class="gps-live" id="gpsLive"></p>
+    <div id="gpsBanner" class="gps-banner" role="status">
+      <strong>Live distances need location</strong>
+      <p>Used only while this guide is on screen. Stops when you leave the app or switch tabs.</p>
+      <button type="button" class="btn btn-primary" id="enableGpsBtn">Enable location</button>
+    </div>
 
     <div id="installBanner" class="install-banner">
       <strong>Add to Home Screen</strong>
@@ -647,6 +694,7 @@
         addr: "1003 Airport Parkway Pvt, Ottawa",
         do: "Pick up economy car ~7:00 AM. Full G licence + credit card. Photo any scratches. Confirm Sunday ~7 PM return.",
         maps: "https://maps.google.com/?q=Enterprise+Rent-A-Car+Ottawa+Airport",
+        lat: 45.3225, lng: -75.6692, mode: "drive",
         locked: true
       },
       hotel: {
@@ -654,62 +702,72 @@
         addr: "5503 Eglinton Ave W, Etobicoke",
         do: "Check in ~12:30 PM. Park the car here for the weekend (free). Free breakfast Sat & Sun.",
         maps: "https://maps.google.com/?q=Best+Western+Plus+Travel+Hotel+Toronto+Airport+5503+Eglinton",
+        lat: 43.6436, lng: -79.5645, mode: "drive",
         locked: true
       },
       harbourfront: {
         name: "Harbourfront",
         addr: "Queens Quay W, Toronto",
         do: "Sit by the lake. Skyline photos. Low walking — benches and water views.",
-        maps: "https://maps.google.com/?q=Harbourfront+Centre+Toronto"
+        maps: "https://maps.google.com/?q=Harbourfront+Centre+Toronto",
+        lat: 43.6387, lng: -79.3828, mode: "ttc",
       },
       distillery: {
         name: "Distillery District",
         addr: "Parliament St / Distillery Lane, Toronto",
         do: "Cobblestone streets, red-brick buildings, photos. Good ambience for Nini. Walk 30–45 min, then sit if you want.",
-        maps: "https://maps.google.com/?q=Distillery+Historic+District+Toronto"
+        maps: "https://maps.google.com/?q=Distillery+Historic+District+Toronto",
+        lat: 43.6503, lng: -79.3596, mode: "ttc",
       },
       gooderham: {
         name: "Gooderham Building (flatiron)",
         addr: "49 Wellington St E, Toronto",
         do: "Quick photo of Toronto’s famous narrow brick building. 5–10 min stop near Distillery.",
-        maps: "https://maps.google.com/?q=Gooderham+Building+Toronto"
+        maps: "https://maps.google.com/?q=Gooderham+Building+Toronto",
+        lat: 43.6486, lng: -79.3744, mode: "ttc",
       },
       funkeys: {
         name: "Funkey’s Delicacies",
         addr: "4205 Keele St Unit 3, North York",
         do: "Your one Nigerian dinner. Order Abula (amala + gbegiri + ewedu) or egusi with swallow, plus jollof or suya. Drive or Uber from hotel (~25 min).",
         maps: "https://maps.google.com/?q=Funkey's+Delicacies+4205+Keele+St+Toronto",
+        lat: 43.7665, lng: -79.4872, mode: "drive",
         phone: "6476293485"
       },
       humber: {
         name: "Humber Bay Park East",
         addr: "Humber Bay Park Rd E, Etobicoke",
         do: "After Funkey’s: park, short walk, Toronto skyline + CN Tower across the lake. Sit on a bench. Light — not a club. Home by ~10:30 PM.",
-        maps: "https://maps.google.com/?q=Humber+Bay+Park+East+Toronto"
+        maps: "https://maps.google.com/?q=Humber+Bay+Park+East+Toronto",
+        lat: 43.6225, lng: -79.4765, mode: "drive",
       },
       eglintonSnack: {
         name: "Little Jamaica dessert stop",
         addr: "Eglinton Ave W near Oakwood",
         do: "Quick patty or dessert on the way toward the hotel. Casual, light, no dancing.",
-        maps: "https://maps.google.com/?q=1561+Eglinton+Ave+W+Toronto"
+        maps: "https://maps.google.com/?q=1561+Eglinton+Ave+W+Toronto",
+        lat: 43.6905, lng: -79.436, mode: "drive",
       },
       casino: {
         name: "Great Canadian Casino (Woodbine)",
         addr: "1133 Queens Plate Dr, Etobicoke",
         do: "Indoor stroll / slots if you want lights and play. Not a dance club. Parking ~$30 Fri–Sun.",
-        maps: "https://maps.google.com/?q=Great+Canadian+Casino+Resort+Toronto"
+        maps: "https://maps.google.com/?q=Great+Canadian+Casino+Resort+Toronto",
+        lat: 43.7155, lng: -79.603, mode: "drive",
       },
       hotelStroll: {
         name: "Hotel area stroll",
         addr: "Around 5503 Eglinton Ave W",
         do: "Park at the hotel. Walk nearby for a snack or coffee. Lightest option after dinner.",
-        maps: "https://maps.google.com/?q=5503+Eglinton+Ave+W+Toronto"
+        maps: "https://maps.google.com/?q=5503+Eglinton+Ave+W+Toronto",
+        lat: 43.6436, lng: -79.5645, mode: "walk",
       },
       ripleys: {
         name: "Ripley’s Aquarium",
         addr: "288 Bremner Blvd, Toronto",
         do: "Timed entry ~10:30 or 11:00 AM. Dangerous Lagoon tunnel + Planet Jellies. Plan ~2 hours. Buy tickets before you arrive.",
         maps: "https://maps.google.com/?q=Ripley's+Aquarium+of+Canada",
+        lat: 43.6424, lng: -79.386, mode: "ttc",
         ticketUrl: "https://www.ripleys.com/attractions/ripleys-aquarium-of-canada",
         ticketLabel: "Buy tickets",
         locked: true
@@ -718,73 +776,85 @@
         name: "The Rec Room",
         addr: "255 Bremner Blvd, Toronto",
         do: "Play together: arcade, Mario Kart, pool, ping pong. Cap credits ~$25–35. Right next to the aquarium.",
-        maps: "https://maps.google.com/?q=The+Rec+Room+Toronto+Bremner"
+        maps: "https://maps.google.com/?q=The+Rec+Room+Toronto+Bremner",
+        lat: 43.6417, lng: -79.3869, mode: "walk",
       },
       greta: {
         name: "Greta Bar",
         addr: "590 King St W, Toronto",
         do: "50+ arcade games + cocktails. 19+. More nightlife than Rec Room — still not Mild Afro.",
-        maps: "https://maps.google.com/?q=Greta+Bar+Toronto+King+St"
+        maps: "https://maps.google.com/?q=Greta+Bar+Toronto+King+St",
+        lat: 43.6442, lng: -79.4005, mode: "ttc",
       },
       playdium: {
         name: "Playdium Fairview",
         addr: "Fairview Mall area, North York",
         do: "Bowling + big arcade. Closer to the hotel side of town if you skip downtown games.",
-        maps: "https://maps.google.com/?q=Playdium+Fairview+Toronto"
+        maps: "https://maps.google.com/?q=Playdium+Fairview+Toronto",
+        lat: 43.7787, lng: -79.344, mode: "drive",
       },
       market: {
         name: "St Lawrence Market",
         addr: "93–95 Front St E, Toronto",
         do: "Saturday lunch. Carousel peameal bacon sandwich, browse stalls ~45 min. Famous Toronto food hall.",
-        maps: "https://maps.google.com/?q=St+Lawrence+Market+Toronto"
+        maps: "https://maps.google.com/?q=St+Lawrence+Market+Toronto",
+        lat: 43.6487, lng: -79.3715, mode: "ttc",
       },
       packedLunch: {
         name: "Packed lunch / snacks",
         addr: "Wherever you are",
         do: "Eat snacks you brought. Saves money and time. Skip the market if you’re tired.",
-        maps: "https://maps.google.com/?q=Ripley's+Aquarium+of+Canada"
+        maps: "https://maps.google.com/?q=Ripley's+Aquarium+of+Canada",
+        lat: 43.6424, lng: -79.386, mode: "walk",
       },
       entertainmentKitchen: {
         name: "Entertainment Kitchen (jerk)",
         addr: "1561 Eglinton Ave W",
         do: "Cheap Caribbean plates near the hotel corridor. Cash often. Big portions.",
-        maps: "https://maps.google.com/?q=The+Entertainment+Kitchen+1561+Eglinton"
+        maps: "https://maps.google.com/?q=The+Entertainment+Kitchen+1561+Eglinton",
+        lat: 43.6905, lng: -79.436, mode: "drive",
       },
       yorkville: {
         name: "Yorkville stroll",
         addr: "Bloor / Yorkville Ave",
         do: "Pretty streets, boutiques, café patios. Nice buildings — good for Nini’s sightseeing taste.",
-        maps: "https://maps.google.com/?q=Yorkville+Toronto"
+        maps: "https://maps.google.com/?q=Yorkville+Toronto",
+        lat: 43.6709, lng: -79.3932, mode: "ttc",
       },
       kensington: {
         name: "Kensington Market",
         addr: "Augusta Ave area",
         do: "Colourful streets and murals. More walking than Harbourfront.",
-        maps: "https://maps.google.com/?q=Kensington+Market+Toronto"
+        maps: "https://maps.google.com/?q=Kensington+Market+Toronto",
+        lat: 43.6546, lng: -79.4005, mode: "ttc",
       },
       nathan: {
         name: "Nathan Phillips Square",
         addr: "100 Queen St W",
         do: "TORONTO sign + City Hall curves. Quick photo stop.",
-        maps: "https://maps.google.com/?q=Nathan+Phillips+Square+Toronto"
+        maps: "https://maps.google.com/?q=Nathan+Phillips+Square+Toronto",
+        lat: 43.6535, lng: -79.384, mode: "ttc",
       },
       cntower: {
         name: "CN Tower (outside only)",
         addr: "290 Bremner Blvd",
         do: "Free skyline photos from below. Skip the deck (~$44/person) to stay on budget.",
-        maps: "https://maps.google.com/?q=CN+Tower+Toronto"
+        maps: "https://maps.google.com/?q=CN+Tower+Toronto",
+        lat: 43.6426, lng: -79.3871, mode: "ttc",
       },
       harbourSunset: {
         name: "Harbourfront sunset",
         addr: "Queens Quay W",
         do: "Sit by the water ~6–7 PM. Skyline + sunset. Minimal walking. Nap later if needed before the club.",
-        maps: "https://maps.google.com/?q=Harbourfront+Centre+Toronto"
+        maps: "https://maps.google.com/?q=Harbourfront+Centre+Toronto",
+        lat: 43.6387, lng: -79.3828, mode: "ttc",
       },
       mildafro: {
         name: "Mild Afro Lounge",
         addr: "1116 Dundas St W",
         do: "Afrobeats night. Arrive ~11:30 PM–12 AM. Smart casual. Drinks + dance. Uber home ~3 AM.",
         maps: "https://maps.google.com/?q=Mild+Afro+Lounge+1116+Dundas+St+W",
+        lat: 43.6496, lng: -79.4208, mode: "uber",
         phone: "6473688355",
         locked: true
       },
@@ -792,44 +862,51 @@
         name: "Barcode Saturdays @ Amore",
         addr: "559 College St",
         do: "Mixed Afrobeats / Dancehall / Soca. Guestlist option. Only if Mild Afro doesn’t work.",
-        maps: "https://maps.google.com/?q=Amore+559+College+Street+Toronto"
+        maps: "https://maps.google.com/?q=Amore+559+College+Street+Toronto",
+        lat: 43.6554, lng: -79.4135, mode: "uber",
       },
       allen: {
         name: "Allen Gardens Conservatory",
         addr: "19 Horticultural Ave",
         do: "Free indoor greenhouse — flowers and quiet ambience. ~30–45 min after checkout, then drive home.",
-        maps: "https://maps.google.com/?q=Allan+Gardens+Conservatory+Toronto"
+        maps: "https://maps.google.com/?q=Allan+Gardens+Conservatory+Toronto",
+        lat: 43.6616, lng: -79.3747, mode: "drive",
       },
       bluffs: {
         name: "Scarborough Bluffs",
         addr: "Scarborough Bluffs Park",
         do: "Cliff + lake views. Extra driving before the long trip home.",
-        maps: "https://maps.google.com/?q=Scarborough+Bluffs+Park"
+        maps: "https://maps.google.com/?q=Scarborough+Bluffs+Park",
+        lat: 43.7058, lng: -79.233, mode: "drive",
       },
       straightHome: {
         name: "Straight home (no Sunday stop)",
         addr: "Highway 401 East",
         do: "Skip Toronto stops. Optional Kingston washroom/coffee. Fastest way back.",
-        maps: "https://maps.google.com/?q=Highway+401+east+from+Toronto"
+        maps: "https://maps.google.com/?q=Highway+401+east+from+Toronto",
+        lat: 43.7, lng: -79.3, mode: "drive",
       },
       yowReturn: {
         name: "Enterprise YOW — car return",
         addr: "Ottawa Airport",
         do: "Fill gas near YOW first. Return ~7:00 PM. After-hours drop box if needed.",
         maps: "https://maps.google.com/?q=Enterprise+Rent-A-Car+Ottawa+Airport",
+        lat: 45.3225, lng: -75.6692, mode: "drive",
         locked: true
       },
       ayoka: {
         name: "Ayoka-Ade African Delicacies",
         addr: "2865 Keele St, North York",
         do: "Homestyle Nigerian backup near Funkey’s. Amala, egusi, jollof.",
-        maps: "https://maps.google.com/?q=Ayoka-Ade+African+Delicacies+2865+Keele"
+        maps: "https://maps.google.com/?q=Ayoka-Ade+African+Delicacies+2865+Keele",
+        lat: 43.748, lng: -79.4815, mode: "drive",
       },
       greelz: {
         name: "Greelz on Bloor",
         addr: "2100 Bloor St W",
         do: "Nigerian street-food vibe — Agege burger, suya bowl. Quicker / lighter than Funkey’s.",
-        maps: "https://maps.google.com/?q=Greelz+2100+Bloor+St+W+Toronto"
+        maps: "https://maps.google.com/?q=Greelz+2100+Bloor+St+W+Toronto",
+        lat: 43.6508, lng: -79.4775, mode: "drive",
       }
     };
 
@@ -1039,8 +1116,170 @@
       return slot.default;
     }
 
-    function mapsUrl(place) {
-      return place.maps;
+    function mapsUrl(place, origin) {
+      if (!place.lat || !place.lng) return place.maps;
+      const mode = travelModeForMaps(resolveMode(place, null));
+      if (origin && origin.lat != null) {
+        return "https://www.google.com/maps/dir/?api=1&origin=" + origin.lat + "," + origin.lng +
+          "&destination=" + place.lat + "," + place.lng + "&travelmode=" + mode;
+      }
+      return "https://www.google.com/maps/dir/?api=1&destination=" + place.lat + "," + place.lng +
+        "&travelmode=" + mode;
+    }
+
+    function travelModeForMaps(mode) {
+      if (mode === "walk") return "walking";
+      if (mode === "ttc") return "transit";
+      return "driving";
+    }
+
+    function haversineKm(a, b) {
+      const R = 6371;
+      const toRad = (d) => d * Math.PI / 180;
+      const dLat = toRad(b.lat - a.lat);
+      const dLng = toRad(b.lng - a.lng);
+      const s = Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(s));
+    }
+
+    function resolveMode(place, km) {
+      const plan = place.mode || "drive";
+      if (plan === "uber" || plan === "ttc") return plan;
+      if (km != null && km < 1.5) return "walk";
+      return plan === "walk" ? "walk" : "drive";
+    }
+
+    function etaMinutes(km, mode) {
+      if (km == null) return null;
+      const speed = { walk: 5, drive: 32, ttc: 18, uber: 28 }[mode] || 30;
+      return Math.max(1, Math.round((km / speed) * 60));
+    }
+
+    function formatDist(km, mode) {
+      const kmStr = km < 10 ? km.toFixed(1) : String(Math.round(km));
+      const mins = etaMinutes(km, mode);
+      const label = { walk: "walk", drive: "drive", ttc: "TTC", uber: "Uber" }[mode] || mode;
+      return { label, text: kmStr + " km · ~" + mins + " min " + label };
+    }
+
+    let geo = {
+      lat: null, lng: null, ok: false, watching: false,
+      timer: null, lastAt: 0, lastLat: null, lastLng: null
+    };
+    const GPS_MIN_M = 50;
+    const GPS_POLL_MS = 55000;
+
+    function showGpsBanner(show) {
+      const el = document.getElementById("gpsBanner");
+      if (el) el.classList.toggle("show", !!show);
+    }
+
+    function setGpsLive(msg, on) {
+      const el = document.getElementById("gpsLive");
+      if (!el) return;
+      el.textContent = msg || "";
+      el.classList.toggle("on", !!on);
+    }
+
+    function distMovedM(a, b) {
+      return haversineKm(a, b) * 1000;
+    }
+
+    function onGeoSuccess(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const now = Date.now();
+      const moved = geo.lastLat != null
+        ? distMovedM({ lat: geo.lastLat, lng: geo.lastLng }, { lat, lng })
+        : 999;
+      if (moved < GPS_MIN_M && geo.ok && now - geo.lastAt < GPS_POLL_MS) return;
+      geo.lat = lat;
+      geo.lng = lng;
+      geo.ok = true;
+      geo.lastAt = now;
+      geo.lastLat = lat;
+      geo.lastLng = lng;
+      showGpsBanner(false);
+      setGpsLive("Live location on · low-power updates while this guide is open", true);
+      refreshDistancesOnly();
+    }
+
+    function onGeoError(err) {
+      geo.ok = false;
+      showGpsBanner(true);
+      setGpsLive("Location off — distances hidden", false);
+      refreshDistancesOnly();
+      if (err && err.code === 1) stopGps();
+    }
+
+    function pollGpsOnce() {
+      if (!navigator.geolocation) return;
+      if (document.visibilityState !== "visible") return;
+      navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, {
+        enableHighAccuracy: false,
+        maximumAge: 45000,
+        timeout: 15000
+      });
+    }
+
+    function stopGps() {
+      if (geo.timer != null) {
+        clearInterval(geo.timer);
+        geo.timer = null;
+      }
+      geo.watching = false;
+      if (geo.ok) setGpsLive("Location paused (guide not on screen)", false);
+    }
+
+    function startGps() {
+      if (!navigator.geolocation) {
+        showGpsBanner(true);
+        setGpsLive("GPS not available on this phone", false);
+        return;
+      }
+      if (document.visibilityState !== "visible") return;
+      if (geo.watching) return;
+      geo.watching = true;
+      pollGpsOnce();
+      geo.timer = setInterval(pollGpsOnce, GPS_POLL_MS);
+    }
+
+    function distHtml(place, plain) {
+      if (!geo.ok || place.lat == null) {
+        return plain ? "" : '<p class="dist-line" hidden></p>';
+      }
+      const km = haversineKm(geo, place);
+      const mode = resolveMode(place, km);
+      const f = formatDist(km, mode);
+      if (plain) return '<span class="mode-tag">' + f.label + "</span>" + f.text;
+      return '<p class="dist-line"><span class="mode-tag">' + f.label + "</span>" + f.text + "</p>";
+    }
+
+    function refreshDistancesOnly() {
+      document.querySelectorAll("[data-dist-slot]").forEach(el => {
+        const slotId = el.getAttribute("data-dist-slot");
+        const slot = [...days.fri, ...days.sat, ...days.sun].find(s => s.id === slotId);
+        if (!slot) return;
+        const place = places[activePlaceId(slot)];
+        el.innerHTML = distHtml(place);
+      });
+      const nextDist = document.getElementById("nextDist");
+      if (nextDist && nextDist.dataset.place) {
+        const place = places[nextDist.dataset.place];
+        if (place) nextDist.innerHTML = distHtml(place, true);
+      }
+      if (geo.ok) {
+        document.querySelectorAll("a[data-maps-place]").forEach(a => {
+          const place = places[a.getAttribute("data-maps-place")];
+          if (place) a.href = mapsUrl(place, geo);
+        });
+        const go = document.getElementById("nextGo");
+        if (go && go.dataset.place) {
+          const place = places[go.dataset.place];
+          if (place) go.href = mapsUrl(place, geo);
+        }
+      }
     }
 
     function renderSlot(slot) {
@@ -1070,9 +1309,10 @@
               <h3>${place.name}${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
               <p class="addr">${place.addr}</p>
               <p class="do">${place.do}</p>
+              <div data-dist-slot="${slot.id}">${distHtml(place)}</div>
               ${swapHtml}
               <div class="actions">
-                <a class="btn btn-primary" href="${mapsUrl(place)}" target="_blank" rel="noopener">Open in Google Maps</a>
+                <a class="btn btn-primary" href="${mapsUrl(place, geo.ok ? geo : null)}" data-maps-place="${placeId}" target="_blank" rel="noopener">Open in Google Maps</a>
                 ${place.ticketUrl ? `<a class="btn btn-soft" href="${place.ticketUrl}" target="_blank" rel="noopener">${place.ticketLabel || "Buy tickets"}</a>` : ""}
                 <button type="button" class="btn ${done ? "btn-ghost" : "btn-ok"} toggle-done" data-slot="${slot.id}">${done ? "Undo" : "Done"}</button>
                 ${place.phone ? `<a class="btn btn-soft" href="tel:${place.phone}">Call</a>` : ""}
@@ -1179,16 +1419,20 @@
       if (!next) {
         title.textContent = "You’re clear — enjoy the drive home";
         meta.textContent = "All stops marked done";
-        if (go) go.hidden = true;
+        if (go) { go.hidden = true; delete go.dataset.place; }
         return;
       }
-      const place = places[activePlaceId(next.slot)];
+      const placeId = activePlaceId(next.slot);
+      const place = places[placeId];
       const dayLabel = { fri: "Friday", sat: "Saturday", sun: "Sunday" }[next.day];
       title.textContent = place.name;
-      meta.textContent = `${dayLabel} · ${next.slot.time} · ${place.addr}`;
+      const distBits = distHtml(place, true);
+      meta.innerHTML = dayLabel + " · " + next.slot.time + " · " + place.addr +
+        '<br><span id="nextDist" data-place="' + placeId + '">' + distBits + "</span>";
       if (go) {
         go.hidden = false;
-        go.href = mapsUrl(place);
+        go.dataset.place = placeId;
+        go.href = mapsUrl(place, geo.ok ? geo : null);
       }
     }
 
@@ -1346,6 +1590,23 @@
       deferredPrompt = null;
       installBtn.hidden = true;
     });
+
+
+    const enableGpsBtn = document.getElementById("enableGpsBtn");
+    if (enableGpsBtn) {
+      enableGpsBtn.addEventListener("click", () => {
+        showGpsBanner(false);
+        stopGps();
+        startGps();
+      });
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") startGps();
+      else stopGps();
+    });
+
+    if (document.visibilityState === "visible") startGps();
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js").catch(() => {});
