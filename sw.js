@@ -1,4 +1,4 @@
-const CACHE = "nate-nini-toronto-v18";
+const CACHE = "nate-nini-toronto-v19";
 const ASSETS = [
   "./",
   "./index.html",
@@ -45,6 +45,22 @@ self.addEventListener("fetch", (event) => {
   // Only cache same-origin static assets
   if (url.origin !== self.location.origin) {
     event.respondWith(fetch(req));
+    return;
+  }
+
+  // Fetch the guide shell first so a new PWA version reaches the phone.
+  if (req.mode === "navigate" || url.pathname.endsWith(".html")) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
     return;
   }
 
