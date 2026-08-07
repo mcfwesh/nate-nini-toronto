@@ -703,6 +703,100 @@
 
     .hero-photo { display: none; } /* replaced by .hero-bg */
 
+    /* ===== WHO GATE SCREEN ===== */
+    body.needs-who {
+      overflow: hidden;
+    }
+    body.needs-who .wrap {
+      display: none !important;
+    }
+    .who-gate {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem 1.25rem calc(1.75rem + env(safe-area-inset-bottom, 0px));
+      background: #12141a;
+      color: var(--ink);
+    }
+    body.needs-who .who-gate { display: flex; }
+    .who-gate-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(18,20,26,0.25) 0%, rgba(18,20,26,0.92) 55%, #12141a 100%),
+        url("photo-couple.png") center 20% / cover no-repeat;
+      z-index: 0;
+    }
+    .who-gate-inner { position: relative; z-index: 1; }
+    .who-gate-inner .eyebrow {
+      margin-bottom: 0.5rem;
+    }
+    .who-gate h1 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 8vw, 2.6rem);
+      margin: 0 0 0.4rem;
+      line-height: 1.05;
+      color: #fff;
+    }
+    .who-gate .lead {
+      margin: 0 0 1.25rem;
+      color: rgba(247,243,235,0.82);
+      font-size: 1.05rem;
+      font-family: var(--serif);
+      font-style: italic;
+    }
+    .who-gate .who-pick {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .who-gate .who-pick button {
+      font: inherit;
+      font-weight: 700;
+      border: 1.5px solid rgba(243,239,230,0.18);
+      background: rgba(28,32,41,0.88);
+      backdrop-filter: blur(10px);
+      padding: 1rem 0.75rem;
+      border-radius: 20px;
+      cursor: pointer;
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .who-gate .who-pick button:active { transform: scale(0.97); }
+    .who-gate .who-pick button img {
+      width: 88px; height: 88px; border-radius: 50%;
+      object-fit: cover; object-position: center top;
+      border: 3px solid rgba(255,255,255,0.85);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .who-gate .who-pick button:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+      border-color: var(--gold);
+    }
+    .who-gate .hint {
+      margin: 1rem 0 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .who-chip {
+      display: none;
+      margin: 0.65rem 0 0.15rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    body.has-who .who-chip { display: block; }
+    .who-chip strong { color: var(--gold); }
+
+
     /* ===== PLACE VIBE EFFECTS ===== */
     .card {
       --fx-x: 0px;
@@ -930,8 +1024,23 @@
 
   </style>
 </head>
-<body>
-  <div class="wrap">
+<body class="needs-who">
+  
+  <div id="whoGate" class="who-gate" role="dialog" aria-modal="true" aria-labelledby="whoGateTitle">
+    <div class="who-gate-bg" aria-hidden="true"></div>
+    <div class="who-gate-inner">
+      <div class="eyebrow">Trip guide</div>
+      <h1 id="whoGateTitle">Who is on this phone?</h1>
+      <p class="lead">Pick once. We keep it when you reopen the app.</p>
+      <div class="who-pick" role="group" aria-label="Choose your name">
+        <button type="button" data-who="Nate"><img src="photo-nate.png" alt="" /><span>Nate</span></button>
+        <button type="button" data-who="Nini Bear"><img src="photo-nini.png" alt="" /><span>Nini Bear</span></button>
+      </div>
+      <p class="hint">Each phone picks a different person so sync can label changes.</p>
+    </div>
+  </div>
+
+  <div class="wrap" id="appRoot">
     <header class="hero">
       <img class="hero-bg" src="photo-couple.png" alt="" />
       <div class="hero-scrim" aria-hidden="true"></div>
@@ -957,12 +1066,8 @@
 
     <div class="content">
 
-    <div class="who-bar" id="whoBar" role="radiogroup" aria-label="Who is using this phone">
-      <span>This phone</span>
-      <button type="button" role="radio" aria-checked="false" data-who="Nate"><img src="photo-nate.png" alt="" /><span>Nate <span class="check" aria-hidden="true">✓</span></span></button>
-      <button type="button" role="radio" aria-checked="false" data-who="Nini Bear"><img src="photo-nini.png" alt="" /><span>Nini Bear <span class="check" aria-hidden="true">✓</span></span></button>
-    </div>
-    <p class="sync-status" id="syncStatus">Pick Nate or Nini Bear</p>
+    <p class="who-chip" id="whoChip">This phone is <strong id="whoChipName">—</strong></p>
+    <p class="sync-status" id="syncStatus">Starting sync…</p>
     <p class="gps-live" id="gpsLive"></p>
     <div id="gpsBanner" class="gps-banner" role="status">
       <strong>Turn on location</strong>
@@ -1039,6 +1144,7 @@
         <ul class="activity-list" id="activityList"><li class="meta">No activity yet</li></ul>
         <div class="actions">
           <button type="button" class="btn btn-soft" id="syncNowBtn">Sync now</button>
+          <button type="button" class="btn btn-ghost" id="changeWhoBtn">Change who on this phone</button>
         </div>
       </div>
 
@@ -1468,8 +1574,26 @@
       rev: 0
     }, loadState());
 
-    let who = localStorage.getItem(WHO_KEY) || "";
+    function readStoredWho() {
+      try {
+        const w = localStorage.getItem(WHO_KEY) || "";
+        if (w === "Nate" || w === "Nini Bear") return w;
+      } catch (_) {}
+      return "";
+    }
+
+    function writeStoredWho(name) {
+      try {
+        localStorage.setItem(WHO_KEY, name);
+        return localStorage.getItem(WHO_KEY) === name;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    let who = readStoredWho();
     let syncTimer = null;
+    let syncPollTimer = null;
     let applyingRemote = false;
 
     function fmtTime(iso) {
@@ -1498,14 +1622,39 @@
       el.className = "sync-status" + (kind ? " " + kind : "");
     }
 
+    function applyWhoGate() {
+      const ready = !!(who === "Nate" || who === "Nini Bear");
+      document.body.classList.toggle("needs-who", !ready);
+      document.body.classList.toggle("has-who", ready);
+      const chip = document.getElementById("whoChipName");
+      if (chip) chip.textContent = ready ? who : "—";
+      return ready;
+    }
+
     function renderWho() {
-      document.querySelectorAll("#whoBar button").forEach(btn => {
-        const on = btn.dataset.who === who;
-        btn.classList.toggle("active", on);
-        btn.setAttribute("aria-checked", on ? "true" : "false");
-      });
-      if (!who) setSyncStatus("Pick one name on this phone — the other phone picks the other", "");
-      else setSyncStatus("This phone is " + who + " · syncing with the other…", "ok");
+      const ready = applyWhoGate();
+      if (!ready) {
+        setSyncStatus("Pick who is on this phone to start sync", "");
+        return;
+      }
+      setSyncStatus("Signed in as " + who + " · auto-sync on", "ok");
+    }
+
+    function enterAs(name) {
+      if (name !== "Nate" && name !== "Nini Bear") return;
+      if (!writeStoredWho(name)) {
+        setSyncStatus("Could not save your name on this phone — try again", "err");
+        return;
+      }
+      who = name;
+      logActivity("joined as " + who);
+      renderWho();
+      renderAll();
+      renderActivity();
+      startSyncLoop();
+      queuePush();
+      pullRemote().then(pushRemote);
+      if (navigator.vibrate) navigator.vibrate(12);
     }
 
     function renderActivity() {
@@ -1697,7 +1846,7 @@
     }
 
     async function pullRemote() {
-      if (dragActive || pullInFlight) return;
+      if (!who || dragActive || pullInFlight) return;
       if (Date.now() < localDirtyUntil) return;
       pullInFlight = true;
       try {
@@ -1782,10 +1931,29 @@
     }
 
     function queuePush() {
-      localDirtyUntil = Date.now() + 2800;
+      localDirtyUntil = Date.now() + 1800;
       saveState(state);
       clearTimeout(syncTimer);
-      syncTimer = setTimeout(pushRemote, 400);
+      syncTimer = setTimeout(pushRemote, 350);
+    }
+
+    function stopSyncLoop() {
+      if (syncPollTimer != null) {
+        clearInterval(syncPollTimer);
+        syncPollTimer = null;
+      }
+    }
+
+    function startSyncLoop() {
+      stopSyncLoop();
+      if (!who) return;
+      const tick = () => {
+        if (!who || dragActive) return;
+        if (document.visibilityState !== "visible") return;
+        pullRemote();
+      };
+      tick();
+      syncPollTimer = setInterval(tick, 2500);
     }
 
     function activePlaceId(slot) {
@@ -1890,15 +2058,19 @@
     function onGeoError(err) {
       if (!geo.watching || document.visibilityState !== "visible") return;
       geo.ok = false;
-      showGpsBanner(true);
-      setGpsLive("Location off — distances hidden", false);
       refreshDistancesOnly();
       hideNearPrompt();
+      // Permission denied only — temporary GPS timeouts must not re-show the banner
       if (err && err.code === 1) {
         gpsWanted = false;
         try { localStorage.removeItem(GPS_PREF); } catch (_) {}
+        showGpsBanner(true);
+        setGpsLive("Location blocked — turn it on in iPhone Settings for this app", false);
         stopGps();
+        return;
       }
+      if (gpsWanted) showGpsBanner(false);
+      setGpsLive("Waiting for GPS… (distances pause until a fix)", false);
     }
 
     function pollGpsOnce() {
@@ -1923,7 +2095,7 @@
 
     function startGps() {
       if (!navigator.geolocation) {
-        showGpsBanner(true);
+        if (!gpsWanted) showGpsBanner(true);
         setGpsLive("GPS not available on this phone", false);
         return;
       }
@@ -1932,6 +2104,8 @@
         setGpsLive("Tap Enable location for live distances", false);
         return;
       }
+      // Already opted in — never nag with the enable banner again
+      showGpsBanner(false);
       if (document.visibilityState !== "visible") return;
       if (geo.watching) return;
       geo.watching = true;
@@ -2316,17 +2490,20 @@
       renderActivity();
     }));
 
-    const whoBarEl = document.getElementById("whoBar");
-    if (whoBarEl) whoBarEl.addEventListener("click", (e) => {
+    const whoGateEl = document.getElementById("whoGate");
+    if (whoGateEl) whoGateEl.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-who]");
       if (!btn) return;
-      who = btn.dataset.who;
-      localStorage.setItem(WHO_KEY, who);
-      logActivity("joined as " + who);
-      renderWho();
-      queuePush();
-      pullRemote().then(pushRemote);
-      if (navigator.vibrate) navigator.vibrate(12);
+      enterAs(btn.dataset.who);
+    });
+
+    const changeWhoBtn = document.getElementById("changeWhoBtn");
+    if (changeWhoBtn) changeWhoBtn.addEventListener("click", () => {
+      who = "";
+      try { localStorage.removeItem(WHO_KEY); } catch (_) {}
+      stopSyncLoop();
+      applyWhoGate();
+      setSyncStatus("Pick who is on this phone", "");
     });
 
     document.getElementById("syncNowBtn").addEventListener("click", () => {
@@ -2545,17 +2722,38 @@
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
         if (gpsWanted) startGps();
+        else showGpsBanner(true);
         refreshTimingLabels();
+        if (who) pullRemote();
       } else {
         stopGps();
+      }
+    });
+
+    window.addEventListener("pageshow", () => {
+      if (who) pullRemote();
+      if (gpsWanted) {
+        showGpsBanner(false);
+        if (document.visibilityState === "visible") startGps();
+      }
+    });
+
+    window.addEventListener("focus", () => {
+      if (who && document.visibilityState === "visible") pullRemote();
+    });
+
+    window.addEventListener("online", () => {
+      if (who) {
+        pullRemote().then(() => pushRemote());
       }
     });
 
     if (!gpsWanted) {
       showGpsBanner(true);
       setGpsLive("Tap Enable location for live distances", false);
-    } else if (document.visibilityState === "visible") {
-      startGps();
+    } else {
+      showGpsBanner(false);
+      if (document.visibilityState === "visible") startGps();
     }
 
     if ("serviceWorker" in navigator) {
@@ -2591,10 +2789,14 @@
       }
     }, true);
 
-    renderAll();
     renderWho();
-    pullRemote();
-    setInterval(() => { if (who && !dragActive) pullRemote(); }, 12000);
+    if (who) {
+      renderAll();
+      startSyncLoop();
+    } else {
+      // Gate only — do not start sync until a name sticks on this phone
+      setSyncStatus("Pick who is on this phone", "");
+    }
   </script>
 </body>
 </html>
