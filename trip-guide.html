@@ -358,15 +358,25 @@
       background: var(--card); padding: 0.45rem 0.85rem 0.45rem 0.45rem;
       border-radius: 999px; cursor: pointer;
       display: inline-flex; align-items: center; gap: 0.55rem;
+      opacity: 0.55;
+      filter: grayscale(0.35);
+      transition: opacity 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     }
     .who-bar button img {
       width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
       object-position: center top; display: block;
     }
     .who-bar button.active {
+      opacity: 1;
+      filter: none;
       background: var(--lake); color: #fff; border-color: var(--lake);
       box-shadow: 0 6px 16px rgba(13, 59, 76, 0.25);
     }
+    .who-bar button .check {
+      display: none;
+      font-size: 0.85rem;
+    }
+    .who-bar button.active .check { display: inline; }
     .sync-status {
       text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.35rem 0 0.75rem;
     }
@@ -412,12 +422,12 @@
         <span class="chip"><strong>Cap</strong> $800</span>
       </div>
 
-    <div class="who-bar" id="whoBar">
-      <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">I am</span>
-      <button type="button" data-who="Nate"><img src="photo-nate.png" alt="" /> Nate</button>
-      <button type="button" data-who="Nini Bear"><img src="photo-nini.png" alt="" /> Nini Bear</button>
+    <div class="who-bar" id="whoBar" role="radiogroup" aria-label="Who is using this phone">
+      <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">Who is using this phone? (pick one)</span>
+      <button type="button" role="radio" aria-checked="false" data-who="Nate"><img src="photo-nate.png" alt="" /> Nate <span class="check" aria-hidden="true">✓</span></button>
+      <button type="button" role="radio" aria-checked="false" data-who="Nini Bear"><img src="photo-nini.png" alt="" /> Nini Bear <span class="check" aria-hidden="true">✓</span></button>
     </div>
-    <p class="sync-status" id="syncStatus">Pick who you are to sync</p>
+    <p class="sync-status" id="syncStatus">Pick one name on this phone — the other phone picks the other</p>
 
     </header>
 
@@ -843,10 +853,12 @@
 
     function renderWho() {
       document.querySelectorAll("#whoBar button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.who === who);
+        const on = btn.dataset.who === who;
+        btn.classList.toggle("active", on);
+        btn.setAttribute("aria-checked", on ? "true" : "false");
       });
-      if (!who) setSyncStatus("Pick who you are to sync", "");
-      else setSyncStatus("Signed in as " + who + " · syncing…", "ok");
+      if (!who) setSyncStatus("Pick one name on this phone — the other phone picks the other", "");
+      else setSyncStatus("This phone is " + who + " · syncing with the other…", "ok");
     }
 
     function renderActivity() {
