@@ -1,9 +1,13 @@
-const CACHE = "nate-nini-toronto-v1";
+const CACHE = "nate-nini-toronto-v2";
 const ASSETS = [
   "./",
   "./index.html",
+  "./trip-guide.html",
   "./manifest.webmanifest",
-  "./icon.svg"
+  "./icon.svg",
+  "./photo-couple.png",
+  "./photo-nate.png",
+  "./photo-nini.png"
 ];
 
 self.addEventListener("install", (event) => {
