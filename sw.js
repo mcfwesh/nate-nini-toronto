@@ -1,4 +1,4 @@
-const CACHE = "nate-nini-toronto-v6";
+const CACHE = "nate-nini-toronto-v7";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,7 +14,12 @@ const ASSETS = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(async (cache) => {
+      await Promise.all(
+        ASSETS.map((url) => cache.add(url).catch(() => null))
+      );
+      self.skipWaiting();
+    })
   );
 });
 
@@ -29,12 +34,28 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
+
+  const url = new URL(req.url);
+  // Never cache the sync API — always hit the network
+  if (url.hostname.includes("workers.dev") || url.pathname.includes("trip-sync")) {
+    event.respondWith(fetch(req));
+    return;
+  }
+
+  // Only cache same-origin static assets
+  if (url.origin !== self.location.origin) {
+    event.respondWith(fetch(req));
+    return;
+  }
+
   event.respondWith(
     caches.match(req).then((cached) => {
       const network = fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((cache) => cache.put(req, copy));
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(req, copy));
+          }
           return res;
         })
         .catch(() => cached);
