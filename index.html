@@ -1025,7 +1025,15 @@
   </style>
 </head>
 <body class="needs-who">
-  
+  <script>
+    try {
+      var __who = localStorage.getItem("nate-nini-who");
+      if (__who === "Nate" || __who === "Nini Bear") {
+        document.body.classList.remove("needs-who");
+        document.body.classList.add("has-who");
+      }
+    } catch (e) {}
+  </script>
   <div id="whoGate" class="who-gate" role="dialog" aria-modal="true" aria-labelledby="whoGateTitle">
     <div class="who-gate-bg" aria-hidden="true"></div>
     <div class="who-gate-inner">
