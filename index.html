@@ -656,15 +656,6 @@
       <button type="button" class="btn btn-primary" id="enableGpsBtn">Enable location</button>
     </div>
 
-    <div id="installBanner" class="install-banner">
-      <strong>Add to Home Screen</strong>
-      <p style="margin:0.35rem 0 0.75rem;color:var(--muted);font-size:0.92rem;">
-        Keep this guide like an app. On iPhone: Share → Add to Home Screen. On Android: tap Install below if shown.
-      </p>
-      <button type="button" class="btn btn-primary" id="installBtn" hidden>Install app</button>
-      <button type="button" class="btn btn-ghost" id="dismissInstall">Got it</button>
-    </div>
-
     <div id="nearPrompt" class="near-prompt" role="dialog" aria-live="polite">
       <strong id="nearTitle">Are you here?</strong>
       <p id="nearMeta"></p>
@@ -1949,32 +1940,6 @@
       renderBudget();
       renderActivity();
     });
-
-    // PWA install
-    let deferredPrompt = null;
-    const banner = document.getElementById("installBanner");
-    const installBtn = document.getElementById("installBtn");
-    if (!state.installDismissed) banner.classList.add("show");
-    document.getElementById("dismissInstall").addEventListener("click", () => {
-      state.installDismissed = true;
-      saveState(state);
-      banner.classList.remove("show");
-    });
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.hidden = false;
-      banner.classList.add("show");
-    });
-    installBtn.addEventListener("click", async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      installBtn.hidden = true;
-    });
-
-
 
     document.getElementById("nearDoneBtn").addEventListener("click", () => {
       if (!nearCandidate) return;
