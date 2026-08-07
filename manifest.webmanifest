@@ -2,13 +2,19 @@
   "name": "Nate & Nini Bear · Toronto",
   "short_name": "Nate & Nini",
   "description": "Ottawa to Toronto trip guide for Nate and Nini Bear — Aug 7–9 2026",
-  "start_url": "./index.html",
+  "start_url": "./trip-guide.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef5f7",
-  "theme_color": "#0d3b4c",
+  "background_color": "#f2f5f6",
+  "theme_color": "#0a3d4a",
   "orientation": "portrait-primary",
   "icons": [
+    {
+      "src": "photo-couple.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon.svg",
       "sizes": "any",

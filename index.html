@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0d3b4c" />
+  <meta name="theme-color" content="#0a3d4a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Nate & Nini" />
@@ -13,423 +13,512 @@
   <link rel="apple-touch-icon" href="photo-couple.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;500;600;700&display=swap" rel="stylesheet" />
   <title>Nate & Nini Bear · Toronto</title>
   <style>
+
     :root {
-      --ink: #12232b;
-      --muted: #5c717c;
-      --bg: #eef5f7;
-      --bg-deep: #d9e8ee;
+      --ink: #0c1f26;
+      --muted: #5a7079;
+      --bg: #f2f5f6;
+      --bg-deep: #e4eef1;
       --card: #ffffff;
-      --accent: #c45d4a;
-      --accent-soft: #f8e8e4;
-      --lake: #0d3b4c;
-      --lake-mid: #1a5a6e;
-      --gold: #c4a35a;
-      --ok: #2d6a4f;
-      --line: rgba(18, 35, 43, 0.1);
-      --shadow: 0 10px 30px rgba(13, 59, 76, 0.08);
-      --radius: 18px;
+      --accent: #e25b45;
+      --accent-soft: #fdece8;
+      --lake: #0a3d4a;
+      --lake-mid: #156275;
+      --gold: #c9a227;
+      --ok: #1f7a4c;
+      --line: rgba(10, 61, 74, 0.1);
+      --shadow: 0 8px 28px rgba(10, 61, 74, 0.09);
+      --radius: 20px;
       --safe-b: env(safe-area-inset-bottom, 0px);
+      --dock-h: calc(4.4rem + var(--safe-b));
+      --serif: "Instrument Serif", Georgia, serif;
+      --sans: "DM Sans", system-ui, sans-serif;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: "Figtree", system-ui, sans-serif;
+      font-family: var(--sans);
       color: var(--ink);
-      background:
-        radial-gradient(1200px 500px at 10% -10%, #f7e9e4 0%, transparent 55%),
-        radial-gradient(900px 400px at 100% 0%, #d5e8ef 0%, transparent 50%),
-        var(--bg);
+      background: var(--bg);
       min-height: 100dvh;
       line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
     }
     a { color: var(--lake-mid); }
-    .wrap { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 7rem; }
+    .wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 0 var(--dock-h);
+    }
+
+    /* ===== CINEMATIC HERO ===== */
     header.hero {
-      padding: 1.5rem 0 1rem;
-      text-align: center;
+      position: relative;
+      padding: 0;
+      text-align: left;
+      color: #fff;
+      overflow: hidden;
+      border-radius: 0 0 28px 28px;
+      min-height: 52vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     }
-    .hero-photo {
-      width: min(280px, 72vw);
-      aspect-ratio: 3 / 4;
+    .hero-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
       object-fit: cover;
-      object-position: center 20%;
-      border-radius: 22px;
-      margin: 0.9rem auto 0.35rem;
-      display: block;
-      box-shadow: var(--shadow);
-      border: 3px solid #fff;
+      object-position: center 18%;
+      z-index: 0;
+      transform: scale(1.02);
     }
-    .hero-caption {
-      margin: 0.25rem 0 0;
-      font-size: 0.88rem;
-      color: var(--muted);
-      font-weight: 500;
+    .hero-scrim {
+      position: absolute; inset: 0; z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(10,61,74,0.15) 0%, rgba(10,61,74,0.25) 35%, rgba(10,61,74,0.92) 100%);
+    }
+    .hero-inner {
+      position: relative; z-index: 2;
+      padding: 1.25rem 1.25rem 1.4rem;
     }
     .eyebrow {
       display: inline-flex;
-      gap: 0.4rem;
-      align-items: center;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--lake-mid);
-      background: rgba(255,255,255,0.7);
-      border: 1px solid var(--line);
-      padding: 0.35rem 0.75rem;
+      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22);
+      padding: 0.4rem 0.7rem;
       border-radius: 999px;
+      backdrop-filter: blur(8px);
     }
     h1 {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(1.9rem, 6vw, 2.6rem);
-      line-height: 1.15;
-      margin: 0.75rem 0 0.35rem;
-      color: var(--lake);
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(2.2rem, 9vw, 2.85rem);
+      line-height: 1.05;
+      margin: 0.75rem 0 0.3rem;
+      color: #fff;
+      letter-spacing: -0.02em;
     }
-    .subtitle { color: var(--muted); margin: 0; font-size: 1rem; }
+    .hero-caption {
+      margin: 0;
+      font-size: 1rem;
+      font-style: italic;
+      font-family: var(--serif);
+      color: rgba(255,255,255,0.88);
+    }
+    .subtitle { display: none; }
     .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
       margin-top: 1rem;
     }
     .chip {
-      font-size: 0.8rem;
-      background: var(--card);
-      border: 1px solid var(--line);
-      padding: 0.4rem 0.7rem;
+      font-size: 0.75rem; font-weight: 600;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.35rem 0.65rem;
       border-radius: 999px;
-      color: var(--muted);
+      color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(6px);
     }
-    .chip strong { color: var(--ink); }
-    .sticky-now {
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      margin: 0.5rem 0 1rem;
-      padding: 0.85rem 1rem;
-      background: linear-gradient(135deg, var(--lake) 0%, var(--lake-mid) 100%);
-      color: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    .chip strong { color: #fff; font-weight: 700; }
+
+    .progress-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-top: 1rem;
+      padding: 0.75rem 0.85rem;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
     }
-    .sticky-now .label {
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      opacity: 0.8;
-      margin: 0 0 0.2rem;
-    }
-    .sticky-now .next-title {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 1.15rem;
-      margin: 0;
-    }
-    .sticky-now .next-meta {
-      font-size: 0.85rem;
-      opacity: 0.9;
-      margin: 0.25rem 0 0;
-    }
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.4rem;
-      margin: 1rem 0;
-      position: sticky;
-      top: 5.2rem;
-      z-index: 30;
-      background: rgba(238, 245, 247, 0.92);
-      backdrop-filter: blur(8px);
-      padding: 0.4rem 0;
-    }
-    .tab {
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--muted);
-      font: inherit;
-      font-weight: 600;
-      font-size: 0.85rem;
-      padding: 0.7rem 0.4rem;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    .tab[aria-selected="true"] {
-      background: var(--lake);
-      color: #fff;
-      border-color: var(--lake);
-    }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .section-title {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 1.35rem;
-      margin: 1.25rem 0 0.75rem;
-      color: var(--lake);
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 1rem;
-      margin-bottom: 0.85rem;
-      box-shadow: var(--shadow);
-      transition: opacity 0.2s ease;
-    }
-    .card.done { opacity: 0.62; }
-    .card-top {
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
-    }
-    .time-pill {
+    .ring {
+      --p: 0;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: conic-gradient(#e25b45 calc(var(--p) * 1%), rgba(255,255,255,0.2) 0);
+      display: grid; place-items: center;
       flex: 0 0 auto;
-      min-width: 4.2rem;
+    }
+    .ring span {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(10,61,74,0.85);
+      display: grid; place-items: center;
+      font-size: 0.68rem; font-weight: 700;
+    }
+    .progress-copy { flex: 1; min-width: 0; }
+    .progress-copy strong { display: block; font-size: 0.9rem; }
+    .progress-copy span { font-size: 0.75rem; opacity: 0.8; }
+
+    .content { padding: 0 1rem; }
+
+    /* Who picker */
+    .who-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      margin: 1.1rem 0 0.35rem;
+    }
+    .who-bar > span {
+      grid-column: 1 / -1;
       text-align: center;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
       font-size: 0.78rem;
-      padding: 0.45rem 0.4rem;
-      border-radius: 10px;
-      line-height: 1.2;
-    }
-    .card-body { flex: 1; min-width: 0; }
-    .card h3 {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 1.15rem;
-      margin: 0 0 0.25rem;
-    }
-    .addr {
-      color: var(--muted);
-      font-size: 0.86rem;
-      margin: 0 0 0.5rem;
-    }
-    .do {
-      margin: 0;
-      font-size: 0.95rem;
-    }
-    .swap-row {
-      margin-top: 0.85rem;
-      padding-top: 0.75rem;
-      border-top: 1px dashed var(--line);
-    }
-    .swap-row label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 0.35rem;
     }
-    select.swap {
-      width: 100%;
-      font: inherit;
-      font-weight: 500;
-      padding: 0.65rem 0.75rem;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--bg);
-      color: var(--ink);
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.85rem;
-    }
-    .btn {
-      appearance: none;
-      border: none;
-      font: inherit;
-      font-weight: 600;
-      font-size: 0.88rem;
-      padding: 0.65rem 0.9rem;
-      border-radius: 999px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .btn-primary {
-      background: var(--lake);
-      color: #fff;
-    }
-    .btn-soft {
-      background: var(--bg-deep);
-      color: var(--lake);
-    }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--muted);
-    }
-    .btn-ok {
-      background: var(--ok);
-      color: #fff;
-    }
-    .notes {
-      width: 100%;
-      margin-top: 0.65rem;
-      font: inherit;
-      padding: 0.65rem 0.75rem;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: #fbfcfd;
-      resize: vertical;
-      min-height: 2.6rem;
-    }
-    .check-list { list-style: none; padding: 0; margin: 0; }
-    .check-list li {
-      display: flex;
-      gap: 0.7rem;
-      align-items: flex-start;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 0.85rem 1rem;
-      margin-bottom: 0.5rem;
-    }
-    .check-list input { margin-top: 0.2rem; width: 1.1rem; height: 1.1rem; accent-color: var(--lake); }
-    .check-list label { flex: 1; cursor: pointer; }
-    .check-list li.done label { text-decoration: line-through; color: var(--muted); }
-    .budget-table { width: 100%; border-collapse: collapse; }
-    .budget-table th, .budget-table td {
-      text-align: left;
-      padding: 0.65rem 0.4rem;
-      border-bottom: 1px solid var(--line);
-      font-size: 0.92rem;
-      vertical-align: middle;
-    }
-    .budget-table th { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .budget-table input {
-      width: 5.5rem;
-      font: inherit;
-      font-weight: 600;
-      padding: 0.4rem 0.5rem;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--bg);
-    }
-    .budget-summary {
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: var(--radius);
-      background: linear-gradient(135deg, var(--accent-soft), #fff);
-      border: 1px solid var(--line);
-    }
-    .budget-summary .big {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 1.8rem;
-      margin: 0.2rem 0;
-    }
-    .over { color: var(--accent); }
-    .under { color: var(--ok); }
-    .install-banner {
-      display: none;
-      margin: 1rem 0;
-      padding: 1rem;
-      border-radius: var(--radius);
-      background: var(--card);
-      border: 1px dashed var(--gold);
-    }
-    .install-banner.show { display: block; }
-    .footer-note {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.82rem;
-      margin-top: 2rem;
-    }
-
-    .who-bar {
-      display: flex; flex-wrap: wrap; gap: 0.65rem; justify-content: center;
-      align-items: center; margin: 1rem 0 0.5rem;
-    }
-    .who-bar > span { width: 100%; text-align: center; }
     .who-bar button {
-      font: inherit; font-weight: 700; border: 2px solid var(--line);
-      background: var(--card); padding: 0.45rem 0.85rem 0.45rem 0.45rem;
-      border-radius: 999px; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 0.55rem;
-      opacity: 0.55;
-      filter: grayscale(0.35);
-      transition: opacity 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      font: inherit; font-weight: 700;
+      border: 1.5px solid var(--line);
+      background: var(--card);
+      padding: 0.7rem 0.75rem;
+      border-radius: 18px;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+      opacity: 0.55; filter: grayscale(0.4);
+      transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
+    .who-bar button:active { transform: scale(0.97); }
     .who-bar button img {
-      width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
-      object-position: center top; display: block;
+      width: 64px; height: 64px; border-radius: 50%;
+      object-fit: cover; object-position: center top;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 12px rgba(10,61,74,0.12);
     }
     .who-bar button.active {
-      opacity: 1;
-      filter: none;
-      background: var(--lake); color: #fff; border-color: var(--lake);
-      box-shadow: 0 6px 16px rgba(13, 59, 76, 0.25);
+      opacity: 1; filter: none;
+      border-color: var(--lake);
+      box-shadow: 0 10px 24px rgba(10, 61, 74, 0.14);
     }
     .who-bar button .check {
       display: none;
+      color: var(--ok);
       font-size: 0.85rem;
     }
     .who-bar button.active .check { display: inline; }
     .sync-status {
-      text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.35rem 0 0.75rem;
+      text-align: center; font-size: 0.8rem; color: var(--muted);
+      margin: 0.25rem 0 0.85rem; min-height: 1.2em;
     }
     .sync-status.ok { color: var(--ok); }
     .sync-status.err { color: var(--accent); }
-    .ticket-tag {
-      display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
-      text-transform: uppercase; color: #fff; background: var(--accent);
-      padding: 0.15rem 0.45rem; border-radius: 6px; margin-left: 0.35rem; vertical-align: middle;
+
+    /* Floating next */
+    .sticky-now {
+      position: sticky; top: 0.65rem; z-index: 40;
+      margin: 0.25rem 0 1rem;
+      padding: 0.9rem 1rem;
+      background: rgba(10, 61, 74, 0.92);
+      color: #fff;
+      border-radius: 18px;
+      box-shadow: 0 12px 32px rgba(10, 61, 74, 0.28);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      animation: riseIn 0.45s ease both;
+      display: flex; align-items: center; gap: 0.75rem;
     }
+    .sticky-now-text { flex: 1; min-width: 0; }
+    .btn-go {
+      flex: 0 0 auto;
+      background: #fff;
+      color: var(--lake);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 12px;
+      text-decoration: none;
+    }
+    .sticky-now .label {
+      font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+      opacity: 0.75; margin: 0 0 0.15rem; font-weight: 700;
+    }
+    .sticky-now .next-title {
+      font-family: var(--serif); font-size: 1.25rem; margin: 0; font-weight: 400;
+    }
+    .sticky-now .next-meta {
+      font-size: 0.82rem; opacity: 0.85; margin: 0.2rem 0 0;
+    }
+
+    /* Hide old top tabs — bottom dock replaces */
+    .tabs { display: none !important; }
+
+    .dock {
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: min(480px, 100%);
+      z-index: 60;
+      padding: 0.45rem 0.75rem calc(0.45rem + var(--safe-b));
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(16px) saturate(1.2);
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.25rem;
+    }
+    .dock .tab {
+      border: none; background: transparent;
+      color: var(--muted);
+      font: inherit; font-weight: 700; font-size: 0.68rem;
+      padding: 0.45rem 0.2rem;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+      transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+    }
+    .dock .tab .ico {
+      font-size: 1.15rem; line-height: 1;
+      width: 2rem; height: 2rem; border-radius: 12px;
+      display: grid; place-items: center;
+      background: transparent;
+    }
+    .dock .tab:active { transform: scale(0.94); }
+    .dock .tab[aria-selected="true"] { color: var(--lake); }
+    .dock .tab[aria-selected="true"] .ico {
+      background: var(--bg-deep);
+      color: var(--lake);
+    }
+
+    .panel { display: none; }
+    .panel.active {
+      display: block;
+      animation: fadeSlide 0.35s ease both;
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: 1.55rem;
+      font-weight: 400;
+      margin: 1.1rem 0 0.85rem;
+      color: var(--lake);
+      letter-spacing: -0.02em;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 0.25rem;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 1.35rem; top: 0.5rem; bottom: 0.5rem;
+      width: 2px;
+      background: linear-gradient(180deg, var(--lake-mid), rgba(10,61,74,0.08));
+      border-radius: 2px;
+    }
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem 1rem 1rem 0.85rem;
+      margin: 0 0 0.85rem 2.5rem;
+      box-shadow: var(--shadow);
+      transition: opacity 0.25s ease, transform 0.2s ease, border-color 0.2s ease;
+      animation: fadeSlide 0.4s ease both;
+    }
+    .card:nth-child(1) { animation-delay: 0.02s; }
+    .card:nth-child(2) { animation-delay: 0.06s; }
+    .card:nth-child(3) { animation-delay: 0.1s; }
+    .card:nth-child(4) { animation-delay: 0.14s; }
+    .card:nth-child(5) { animation-delay: 0.18s; }
+    .card:nth-child(6) { animation-delay: 0.22s; }
+    .card.done { opacity: 0.55; }
+    .card.done .node {
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(31,122,76,0.18);
+    }
+    .node {
+      position: absolute;
+      left: -2.05rem; top: 1.15rem;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--lake);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 0 3px rgba(10,61,74,0.15);
+      z-index: 2;
+    }
+    .card-top { display: flex; gap: 0.7rem; align-items: flex-start; }
+    .time-pill {
+      flex: 0 0 auto;
+      min-width: 4.1rem;
+      text-align: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.72rem;
+      padding: 0.45rem 0.35rem;
+      border-radius: 12px;
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+    }
+    .card-body { flex: 1; min-width: 0; }
+    .card h3 {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.01em;
+    }
+    .addr { color: var(--muted); font-size: 0.84rem; margin: 0 0 0.45rem; }
+    .do { margin: 0; font-size: 0.93rem; color: #243940; }
+    .swap-row {
+      margin-top: 0.85rem; padding-top: 0.75rem;
+      border-top: 1px dashed var(--line);
+    }
+    .swap-row label {
+      display: block; font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.35rem;
+    }
+    select.swap {
+      width: 100%; font: inherit; font-weight: 500;
+      padding: 0.7rem 0.8rem; border-radius: 14px;
+      border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+    }
+    .actions {
+      display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.85rem;
+    }
+    .btn {
+      appearance: none; border: none; font: inherit; font-weight: 700;
+      font-size: 0.84rem; padding: 0.7rem 0.95rem; border-radius: 14px;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      transition: transform 0.12s ease, background 0.15s ease;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--lake); color: #fff; }
+    .btn-soft { background: var(--bg-deep); color: var(--lake); }
+    .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+    .btn-ok { background: var(--ok); color: #fff; }
+    .notes {
+      width: 100%; margin-top: 0.65rem; font: inherit;
+      padding: 0.7rem 0.8rem; border-radius: 14px;
+      border: 1px solid var(--line); background: #fafbfc;
+      resize: vertical; min-height: 2.6rem;
+    }
+    .check-list { list-style: none; padding: 0; margin: 0; }
+    .check-list li {
+      display: flex; gap: 0.7rem; align-items: flex-start;
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 16px; padding: 0.9rem 1rem; margin-bottom: 0.5rem;
+      transition: border-color 0.15s ease;
+    }
+    .check-list li.done { border-color: rgba(31,122,76,0.35); }
+    .check-list input { margin-top: 0.15rem; width: 1.15rem; height: 1.15rem; accent-color: var(--lake); }
+    .check-list label { flex: 1; cursor: pointer; font-weight: 500; }
+    .check-list li.done label { text-decoration: line-through; color: var(--muted); }
+    .budget-table { width: 100%; border-collapse: collapse; }
+    .budget-table th, .budget-table td {
+      text-align: left; padding: 0.7rem 0.35rem;
+      border-bottom: 1px solid var(--line); font-size: 0.9rem; vertical-align: middle;
+    }
+    .budget-table th {
+      color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .budget-table input {
+      width: 5.5rem; font: inherit; font-weight: 700;
+      padding: 0.45rem 0.5rem; border-radius: 10px;
+      border: 1px solid var(--line); background: var(--bg);
+    }
+    .budget-summary {
+      margin-top: 1rem; padding: 1rem; border-radius: 18px;
+      background: linear-gradient(145deg, var(--accent-soft), #fff 55%);
+      border: 1px solid var(--line);
+    }
+    .budget-summary .big {
+      font-family: var(--serif); font-size: 2rem; margin: 0.15rem 0; font-weight: 400;
+    }
+    .over { color: var(--accent); }
+    .under { color: var(--ok); }
+    .install-banner {
+      display: none; margin: 0.85rem 0; padding: 1rem;
+      border-radius: 18px; background: var(--card);
+      border: 1px dashed var(--gold);
+    }
+    .install-banner.show { display: block; }
+    .footer-note {
+      text-align: center; color: var(--muted); font-size: 0.8rem;
+      margin: 1.5rem 0 0.5rem; padding-bottom: 0.5rem;
+    }
+    .ticket-tag, .locked-tag {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 0.18rem 0.45rem; border-radius: 7px;
+      margin-left: 0.3rem; vertical-align: middle;
+      font-family: var(--sans);
+    }
+    .ticket-tag { color: #fff; background: var(--accent); }
+    .locked-tag { color: var(--lake); background: var(--bg-deep); }
     .activity-list { list-style: none; padding: 0; margin: 0; }
     .activity-list li {
-      padding: 0.65rem 0; border-bottom: 1px solid var(--line); font-size: 0.9rem;
+      padding: 0.7rem 0; border-bottom: 1px solid var(--line); font-size: 0.9rem;
     }
-    .activity-list .meta { color: var(--muted); font-size: 0.78rem; }
+    .activity-list .meta { color: var(--muted); font-size: 0.76rem; margin-top: 0.15rem; }
     .ticket-card { border-left: 4px solid var(--accent); }
-    .locked-tag {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--lake);
-      background: var(--bg-deep);
-      padding: 0.15rem 0.45rem;
-      border-radius: 6px;
-      margin-left: 0.35rem;
-      vertical-align: middle;
+    .bento {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-bottom: 0.85rem;
     }
+    .bento .card { margin: 0; }
+    .bento .span2 { grid-column: 1 / -1; }
+
+    #panel-tools .card {
+      margin-left: 0;
+      margin-right: 0;
+    }
+    #panel-tools .node { display: none; }
+
+    .hero-photo { display: none; } /* replaced by .hero-bg */
+
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="hero">
-      <div class="eyebrow">Ottawa → Toronto → Ottawa</div>
-      <img class="hero-photo" src="photo-couple.png" alt="Nate and Nini Bear" width="280" height="373" />
-      <h1>Nate &amp; Nini Bear</h1>
-      <p class="hero-caption">Our Toronto weekend</p>
-      <p class="subtitle">Aug 7–9, 2026 · our one-stop trip guide</p>
-      <div class="chip-row">
-        <span class="chip"><strong>Hotel</strong> $325</span>
-        <span class="chip"><strong>Car</strong> $194.42</span>
-        <span class="chip"><strong>Cap</strong> $800</span>
+      <img class="hero-bg" src="photo-couple.png" alt="" />
+      <div class="hero-scrim" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="eyebrow">Ottawa → Toronto → Ottawa</div>
+        <h1>Nate &amp; Nini Bear</h1>
+        <p class="hero-caption">Our Toronto weekend</p>
+        <p class="subtitle">Aug 7–9, 2026</p>
+        <div class="chip-row">
+          <span class="chip"><strong>Hotel</strong> $325</span>
+          <span class="chip"><strong>Car</strong> $194.42</span>
+          <span class="chip"><strong>Cap</strong> $800</span>
+        </div>
+        <div class="progress-row">
+          <div class="ring" id="progressRing" style="--p:0"><span id="progressPct">0%</span></div>
+          <div class="progress-copy">
+            <strong id="progressLabel">Trip progress</strong>
+            <span id="progressSub">Mark stops done as you go</span>
+          </div>
+        </div>
       </div>
+    </header>
+
+    <div class="content">
 
     <div class="who-bar" id="whoBar" role="radiogroup" aria-label="Who is using this phone">
-      <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">Who is using this phone? (pick one)</span>
-      <button type="button" role="radio" aria-checked="false" data-who="Nate"><img src="photo-nate.png" alt="" /> Nate <span class="check" aria-hidden="true">✓</span></button>
-      <button type="button" role="radio" aria-checked="false" data-who="Nini Bear"><img src="photo-nini.png" alt="" /> Nini Bear <span class="check" aria-hidden="true">✓</span></button>
+      <span>Who is using this phone? (pick one)</span>
+      <button type="button" role="radio" aria-checked="false" data-who="Nate"><img src="photo-nate.png" alt="" /><span>Nate <span class="check" aria-hidden="true">✓</span></span></button>
+      <button type="button" role="radio" aria-checked="false" data-who="Nini Bear"><img src="photo-nini.png" alt="" /><span>Nini Bear <span class="check" aria-hidden="true">✓</span></span></button>
     </div>
     <p class="sync-status" id="syncStatus">Pick one name on this phone — the other phone picks the other</p>
-
-    </header>
 
     <div id="installBanner" class="install-banner">
       <strong>Add to Home Screen</strong>
@@ -441,12 +530,15 @@
     </div>
 
     <div class="sticky-now" id="stickyNow" aria-live="polite">
-      <p class="label">What’s next</p>
-      <p class="next-title" id="nextTitle">Loading…</p>
-      <p class="next-meta" id="nextMeta"></p>
+      <div class="sticky-now-text">
+        <p class="label">What’s next</p>
+        <p class="next-title" id="nextTitle">Loading…</p>
+        <p class="next-meta" id="nextMeta"></p>
+      </div>
+      <a class="btn btn-go" id="nextGo" href="#" target="_blank" rel="noopener" hidden>Maps</a>
     </div>
 
-    <nav class="tabs" role="tablist" aria-label="Trip sections">
+    <nav class="tabs" role="tablist" aria-label="Trip sections" hidden>
       <button class="tab" role="tab" data-panel="fri" aria-selected="true">Fri</button>
       <button class="tab" role="tab" data-panel="sat" aria-selected="false">Sat</button>
       <button class="tab" role="tab" data-panel="sun" aria-selected="false">Sun</button>
@@ -461,14 +553,14 @@
 
       <h2 class="section-title">Buy before you go</h2>
       <div class="card ticket-card">
-        <h3 style="font-family:Fraunces,Georgia,serif;margin:0 0 0.35rem;">Ripley’s Aquarium</h3>
+        <h3 style="font-family:var(--serif);margin:0 0 0.35rem;">Ripley’s Aquarium</h3>
         <p class="do">Timed tickets for <strong>Sat Aug 8, 10:30 or 11:00 AM</strong>. Buy online — cheaper and skips the line.</p>
         <div class="actions">
           <a class="btn btn-primary" href="https://www.ripleys.com/attractions/ripleys-aquarium-of-canada" target="_blank" rel="noopener">Buy Ripley’s tickets</a>
         </div>
       </div>
       <div class="card ticket-card">
-        <h3 style="font-family:Fraunces,Georgia,serif;margin:0 0 0.35rem;">TTC day pass (cheapest full-day transit)</h3>
+        <h3 style="font-family:var(--serif);margin:0 0 0.35rem;">TTC day pass (cheapest full-day transit)</h3>
         <p class="do"><strong>$13.50</strong> PRESTO day pass = unlimited TTC for the day (best if you ride 4+ times). Buy at any <strong>subway station fare machine</strong> or Shoppers Drug Mart — not sold online as a day-pass ticket.</p>
         <p class="do" style="margin-top:0.5rem;">Cheaper for few rides: tap credit/debit (~$3.30–$3.35, 2-hour transfer) or load PRESTO in Apple Wallet.</p>
         <div class="actions">
@@ -478,7 +570,7 @@
         </div>
       </div>
       <div class="card">
-        <h3 style="font-family:Fraunces,Georgia,serif;margin:0 0 0.35rem;">Mild Afro (Saturday)</h3>
+        <h3 style="font-family:var(--serif);margin:0 0 0.35rem;">Mild Afro (Saturday)</h3>
         <p class="do">Usually cover / door — call ahead. No required advance ticket like Ripley’s.</p>
         <div class="actions">
           <a class="btn btn-soft" href="tel:6473688355">Call Mild Afro</a>
@@ -497,7 +589,7 @@
       <h2 class="section-title">Before you leave</h2>
       <ul class="check-list" id="checklist"></ul>
 
-      <h2 class="section-title">Budget <span style="font-size:0.85rem;color:var(--muted);font-family:Figtree,sans-serif;font-weight:500">(tap to edit)</span></h2>
+      <h2 class="section-title">Budget <span style="font-size:0.85rem;color:var(--muted);font-family:var(--sans);font-weight:500">(tap to edit)</span></h2>
       <div class="card">
         <table class="budget-table">
           <thead>
@@ -532,7 +624,15 @@
       <ul class="check-list" id="packing"></ul>
     </section>
 
+    </div><!-- .content -->
+
     <p class="footer-note">Nate &amp; Nini Bear · Aug 2026 · progress syncs for both phones</p>
+    <nav class="dock" role="tablist" aria-label="Trip sections">
+      <button class="tab" role="tab" data-panel="fri" aria-selected="true"><span class="ico">✦</span>Fri</button>
+      <button class="tab" role="tab" data-panel="sat" aria-selected="false"><span class="ico">◎</span>Sat</button>
+      <button class="tab" role="tab" data-panel="sun" aria-selected="false"><span class="ico">◐</span>Sun</button>
+      <button class="tab" role="tab" data-panel="tools" aria-selected="false"><span class="ico">☰</span>Tools</button>
+    </nav>
   </div>
 
   <script>
@@ -963,6 +1063,7 @@
 
       return `
         <article class="card ${done ? "done" : ""}" data-slot="${slot.id}">
+          <span class="node" aria-hidden="true"></span>
           <div class="card-top">
             <div class="time-pill">${slot.time}</div>
             <div class="card-body">
@@ -985,7 +1086,7 @@
 
     function renderDay(key, title) {
       const el = document.getElementById("panel-" + key);
-      el.innerHTML = `<h2 class="section-title">${title}</h2>` + days[key].map(renderSlot).join("");
+      el.innerHTML = `<h2 class="section-title">${title}</h2><div class="timeline">` + days[key].map(renderSlot).join("") + `</div>`;
     }
 
     function renderChecks(listId, items, stateKey) {
@@ -1074,15 +1175,35 @@
       }
       const title = document.getElementById("nextTitle");
       const meta = document.getElementById("nextMeta");
+      const go = document.getElementById("nextGo");
       if (!next) {
         title.textContent = "You’re clear — enjoy the drive home";
         meta.textContent = "All stops marked done";
+        if (go) go.hidden = true;
         return;
       }
       const place = places[activePlaceId(next.slot)];
       const dayLabel = { fri: "Friday", sat: "Saturday", sun: "Sunday" }[next.day];
       title.textContent = place.name;
       meta.textContent = `${dayLabel} · ${next.slot.time} · ${place.addr}`;
+      if (go) {
+        go.hidden = false;
+        go.href = mapsUrl(place);
+      }
+    }
+
+    function updateProgress() {
+      const slots = [...days.fri, ...days.sat, ...days.sun];
+      const doneN = slots.filter(s => state.done[s.id]).length;
+      const pct = slots.length ? Math.round((doneN / slots.length) * 100) : 0;
+      const ring = document.getElementById("progressRing");
+      const pctEl = document.getElementById("progressPct");
+      const label = document.getElementById("progressLabel");
+      const sub = document.getElementById("progressSub");
+      if (ring) ring.style.setProperty("--p", String(pct));
+      if (pctEl) pctEl.textContent = pct + "%";
+      if (label) label.textContent = doneN + " of " + slots.length + " stops done";
+      if (sub) sub.textContent = pct === 100 ? "You finished the plan — safe drive home" : "Keep marking Done as you go";
     }
 
     function renderAll() {
@@ -1096,6 +1217,7 @@
       document.querySelectorAll(".tab").forEach(t => {
         t.setAttribute("aria-selected", t.dataset.panel === state.panel ? "true" : "false");
       });
+      updateProgress();
       document.querySelectorAll(".panel").forEach(p => {
         p.classList.toggle("active", p.id === "panel-" + state.panel);
       });
@@ -1103,16 +1225,17 @@
       renderActivity();
     }
 
-    document.querySelector(".tabs").addEventListener("click", (e) => {
+    document.querySelectorAll(".tabs, .dock").forEach(nav => nav.addEventListener("click", (e) => {
       const btn = e.target.closest(".tab");
       if (!btn) return;
       state.panel = btn.dataset.panel;
       saveState(state);
       renderAll();
       renderActivity();
-    });
+    }));
 
-    document.getElementById("whoBar").addEventListener("click", (e) => {
+    const whoBarEl = document.getElementById("whoBar");
+    if (whoBarEl) whoBarEl.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-who]");
       if (!btn) return;
       who = btn.dataset.who;
@@ -1121,6 +1244,7 @@
       renderWho();
       queuePush();
       pullRemote().then(pushRemote);
+      if (navigator.vibrate) navigator.vibrate(12);
     });
 
     document.getElementById("syncNowBtn").addEventListener("click", () => {
@@ -1166,6 +1290,7 @@
         const slot = [...days.fri, ...days.sat, ...days.sun].find(s => s.id === id);
         const place = places[activePlaceId(slot)];
         logActivity("marked done · " + (place ? place.name : id));
+        if (navigator.vibrate) navigator.vibrate(18);
       } else {
         delete state.doneMeta[id];
         logActivity("undid done · " + id);
