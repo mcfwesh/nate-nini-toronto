@@ -330,6 +330,32 @@
       font-size: 0.82rem;
       margin-top: 2rem;
     }
+
+    .who-bar {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+      align-items: center; margin: 1rem 0 0.5rem;
+    }
+    .who-bar button {
+      font: inherit; font-weight: 700; border: 1px solid var(--line);
+      background: var(--card); padding: 0.55rem 0.9rem; border-radius: 999px; cursor: pointer;
+    }
+    .who-bar button.active { background: var(--lake); color: #fff; border-color: var(--lake); }
+    .sync-status {
+      text-align: center; font-size: 0.82rem; color: var(--muted); margin: 0.35rem 0 0.75rem;
+    }
+    .sync-status.ok { color: var(--ok); }
+    .sync-status.err { color: var(--accent); }
+    .ticket-tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; color: #fff; background: var(--accent);
+      padding: 0.15rem 0.45rem; border-radius: 6px; margin-left: 0.35rem; vertical-align: middle;
+    }
+    .activity-list { list-style: none; padding: 0; margin: 0; }
+    .activity-list li {
+      padding: 0.65rem 0; border-bottom: 1px solid var(--line); font-size: 0.9rem;
+    }
+    .activity-list .meta { color: var(--muted); font-size: 0.78rem; }
+    .ticket-card { border-left: 4px solid var(--accent); }
     .locked-tag {
       display: inline-block;
       font-size: 0.7rem;
@@ -356,6 +382,14 @@
         <span class="chip"><strong>Car</strong> $194.42</span>
         <span class="chip"><strong>Cap</strong> $800</span>
       </div>
+
+    <div class="who-bar" id="whoBar">
+      <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">I am</span>
+      <button type="button" data-who="Nate">Nate</button>
+      <button type="button" data-who="Nini Bear">Nini Bear</button>
+    </div>
+    <p class="sync-status" id="syncStatus">Pick who you are to sync</p>
+
     </header>
 
     <div id="installBanner" class="install-banner">
@@ -385,6 +419,42 @@
     <section id="panel-sun" class="panel" role="tabpanel"></section>
 
     <section id="panel-tools" class="panel" role="tabpanel">
+
+      <h2 class="section-title">Buy before you go</h2>
+      <div class="card ticket-card">
+        <h3 style="font-family:Fraunces,Georgia,serif;margin:0 0 0.35rem;">Ripley’s Aquarium</h3>
+        <p class="do">Timed tickets for <strong>Sat Aug 8, 10:30 or 11:00 AM</strong>. Buy online — cheaper and skips the line.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://www.ripleys.com/attractions/ripleys-aquarium-of-canada" target="_blank" rel="noopener">Buy Ripley’s tickets</a>
+        </div>
+      </div>
+      <div class="card ticket-card">
+        <h3 style="font-family:Fraunces,Georgia,serif;margin:0 0 0.35rem;">TTC day pass (cheapest full-day transit)</h3>
+        <p class="do"><strong>$13.50</strong> PRESTO day pass = unlimited TTC for the day (best if you ride 4+ times). Buy at any <strong>subway station fare machine</strong> or Shoppers Drug Mart — not sold online as a day-pass ticket.</p>
+        <p class="do" style="margin-top:0.5rem;">Cheaper for few rides: tap credit/debit (~$3.30–$3.35, 2-hour transfer) or load PRESTO in Apple Wallet.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://www.ttc.ca/Fares-and-passes" target="_blank" rel="noopener">TTC fares &amp; day pass info</a>
+          <a class="btn btn-soft" href="https://www.prestocard.ca/en" target="_blank" rel="noopener">Get / load PRESTO</a>
+          <a class="btn btn-soft" href="https://www.prestocard.ca/en/products/presto-ttc-tickets" target="_blank" rel="noopener">PRESTO day ticket info</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-family:Fraunces,Georgia,serif;margin:0 0 0.35rem;">Mild Afro (Saturday)</h3>
+        <p class="do">Usually cover / door — call ahead. No required advance ticket like Ripley’s.</p>
+        <div class="actions">
+          <a class="btn btn-soft" href="tel:6473688355">Call Mild Afro</a>
+          <a class="btn btn-soft" href="https://mildafrolounge.com/" target="_blank" rel="noopener">Mild Afro site</a>
+        </div>
+      </div>
+
+      <h2 class="section-title">Who updated what</h2>
+      <div class="card">
+        <ul class="activity-list" id="activityList"><li class="meta">No activity yet</li></ul>
+        <div class="actions">
+          <button type="button" class="btn btn-soft" id="syncNowBtn">Sync now</button>
+        </div>
+      </div>
+
       <h2 class="section-title">Before you leave</h2>
       <ul class="check-list" id="checklist"></ul>
 
@@ -400,7 +470,7 @@
           <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Running total vs $800</div>
           <p class="big" id="budgetTotal">$0</p>
           <p id="budgetDelta" style="margin:0;font-weight:600;"></p>
-          <p style="margin:0.5rem 0 0;font-size:0.85rem;color:var(--muted);">Hotel $325 + car $194.42 are locked. Other rows stay on this phone only.</p>
+          <p style="margin:0.5rem 0 0;font-size:0.85rem;color:var(--muted);">Hotel $325 + car $194.42 are locked. Edits sync for both of you.</p>
         </div>
         <div class="actions">
           <button type="button" class="btn btn-soft" id="resetBudget">Reset estimates</button>
@@ -423,11 +493,14 @@
       <ul class="check-list" id="packing"></ul>
     </section>
 
-    <p class="footer-note">Nate &amp; Nini Bear · Aug 2026 · progress saves on this phone</p>
+    <p class="footer-note">Nate &amp; Nini Bear · Aug 2026 · progress syncs for both phones</p>
   </div>
 
   <script>
-    const STORAGE_KEY = "nate-nini-toronto-2026-v1";
+    const STORAGE_KEY = "nate-nini-toronto-2026-v2";
+    const WHO_KEY = "nate-nini-who";
+    const SYNC_URL = "https://nate-nini-trip-sync.butter-count.workers.dev";
+
 
     const places = {
       yow: {
@@ -496,8 +569,10 @@
       ripleys: {
         name: "Ripley’s Aquarium",
         addr: "288 Bremner Blvd, Toronto",
-        do: "Timed entry ~10:30 or 11:00 AM. Dangerous Lagoon tunnel + Planet Jellies. Plan ~2 hours. Tickets online.",
+        do: "Timed entry ~10:30 or 11:00 AM. Dangerous Lagoon tunnel + Planet Jellies. Plan ~2 hours. Buy tickets before you arrive.",
         maps: "https://maps.google.com/?q=Ripley's+Aquarium+of+Canada",
+        ticketUrl: "https://www.ripleys.com/attractions/ripleys-aquarium-of-canada",
+        ticketLabel: "Buy tickets",
         locked: true
       },
       recroom: {
@@ -695,13 +770,127 @@
     let state = Object.assign({
       swaps: {},
       done: {},
+      doneMeta: {},
       notes: {},
       checks: {},
       pack: {},
       budget: {},
+      activity: [],
+      updatedAt: null,
+      updatedBy: null,
       panel: "fri",
       installDismissed: false
     }, loadState());
+
+    let who = localStorage.getItem(WHO_KEY) || "";
+    let syncTimer = null;
+    let applyingRemote = false;
+
+    function fmtTime(iso) {
+      if (!iso) return "";
+      try {
+        const d = new Date(iso);
+        return d.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+      } catch { return iso; }
+    }
+
+    function currentWho() {
+      return who || "Someone";
+    }
+
+    function logActivity(what) {
+      const entry = { who: currentWho(), what, at: new Date().toISOString() };
+      state.activity = [entry, ...(state.activity || [])].slice(0, 80);
+      state.updatedAt = entry.at;
+      state.updatedBy = entry.who;
+    }
+
+    function setSyncStatus(msg, kind) {
+      const el = document.getElementById("syncStatus");
+      if (!el) return;
+      el.textContent = msg;
+      el.className = "sync-status" + (kind ? " " + kind : "");
+    }
+
+    function renderWho() {
+      document.querySelectorAll("#whoBar button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.who === who);
+      });
+      if (!who) setSyncStatus("Pick who you are to sync", "");
+      else setSyncStatus("Signed in as " + who + " · syncing…", "ok");
+    }
+
+    function renderActivity() {
+      const el = document.getElementById("activityList");
+      if (!el) return;
+      const items = state.activity || [];
+      if (!items.length) {
+        el.innerHTML = '<li class="meta">No activity yet</li>';
+        return;
+      }
+      el.innerHTML = items.slice(0, 25).map(a =>
+        `<li><strong>${a.who}</strong> — ${a.what}<div class="meta">${fmtTime(a.at)}</div></li>`
+      ).join("");
+    }
+
+    async function pullRemote() {
+      try {
+        const res = await fetch(SYNC_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const remote = await res.json();
+        applyingRemote = true;
+        const keys = ["swaps","done","doneMeta","notes","checks","pack","budget","activity","updatedAt","updatedBy"];
+        keys.forEach(k => {
+          if (remote[k] !== undefined) state[k] = remote[k];
+        });
+        saveState(state);
+        renderAll();
+        renderActivity();
+        setSyncStatus(
+          (who ? ("Signed in as " + who + " · ") : "") +
+          "Synced" + (state.updatedBy ? (" · last: " + state.updatedBy) : ""),
+          "ok"
+        );
+      } catch (err) {
+        setSyncStatus("Sync offline — " + (err.message || "retry soon"), "err");
+      } finally {
+        applyingRemote = false;
+      }
+    }
+
+    async function pushRemote() {
+      if (!who || applyingRemote) return;
+      try {
+        const payload = {
+          swaps: state.swaps,
+          done: state.done,
+          doneMeta: state.doneMeta || {},
+          notes: state.notes,
+          checks: state.checks,
+          pack: state.pack,
+          budget: state.budget,
+          activity: state.activity || [],
+          updatedAt: state.updatedAt,
+          updatedBy: state.updatedBy
+        };
+        const res = await fetch(SYNC_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        setSyncStatus("Signed in as " + who + " · saved for both", "ok");
+      } catch (err) {
+        setSyncStatus("Could not save sync — " + (err.message || "retry"), "err");
+      }
+    }
+
+    function queuePush() {
+      saveState(state);
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(pushRemote, 400);
+    }
+
 
     function activePlaceId(slot) {
       const chosen = state.swaps[slot.id];
@@ -736,15 +925,17 @@
           <div class="card-top">
             <div class="time-pill">${slot.time}</div>
             <div class="card-body">
-              <h3>${place.name}${place.locked ? '<span class="locked-tag">must</span>' : ""}</h3>
+              <h3>${place.name}${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
               <p class="addr">${place.addr}</p>
               <p class="do">${place.do}</p>
               ${swapHtml}
               <div class="actions">
                 <a class="btn btn-primary" href="${mapsUrl(place)}" target="_blank" rel="noopener">Open in Google Maps</a>
+                ${place.ticketUrl ? `<a class="btn btn-soft" href="${place.ticketUrl}" target="_blank" rel="noopener">${place.ticketLabel || "Buy tickets"}</a>` : ""}
                 <button type="button" class="btn ${done ? "btn-ghost" : "btn-ok"} toggle-done" data-slot="${slot.id}">${done ? "Undo" : "Done"}</button>
                 ${place.phone ? `<a class="btn btn-soft" href="tel:${place.phone}">Call</a>` : ""}
               </div>
+              ${state.doneMeta && state.doneMeta[slot.id] ? `<p class="addr">Marked done by <strong>${state.doneMeta[slot.id].who}</strong> · ${fmtTime(state.doneMeta[slot.id].at)}</p>` : ""}
               <textarea class="notes" data-note="${slot.id}" placeholder="Notes for us…">${note.replace(/</g, "&lt;")}</textarea>
             </div>
           </div>
@@ -867,6 +1058,8 @@
       document.querySelectorAll(".panel").forEach(p => {
         p.classList.toggle("active", p.id === "panel-" + state.panel);
       });
+      renderWho();
+      renderActivity();
     }
 
     document.querySelector(".tabs").addEventListener("click", (e) => {
@@ -875,24 +1068,48 @@
       state.panel = btn.dataset.panel;
       saveState(state);
       renderAll();
+      renderActivity();
     });
+
+    document.getElementById("whoBar").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-who]");
+      if (!btn) return;
+      who = btn.dataset.who;
+      localStorage.setItem(WHO_KEY, who);
+      logActivity("joined as " + who);
+      renderWho();
+      queuePush();
+      pullRemote().then(pushRemote);
+    });
+
+    document.getElementById("syncNowBtn").addEventListener("click", () => {
+      pullRemote().then(() => who && pushRemote());
+    });
+
 
     document.body.addEventListener("change", (e) => {
       if (e.target.matches("select.swap")) {
         state.swaps[e.target.dataset.slot] = e.target.value;
-        saveState(state);
+        const place = places[e.target.value];
+        logActivity("swapped a stop → " + (place ? place.name : e.target.value));
+        queuePush();
         renderAll();
+        renderActivity();
       }
       if (e.target.matches('input[type="checkbox"][data-key]')) {
         const key = e.target.dataset.key;
         state[key][e.target.id] = e.target.checked;
-        saveState(state);
+        logActivity((e.target.checked ? "checked" : "unchecked") + " · " + (e.target.nextElementSibling?.textContent || e.target.id));
+        queuePush();
         renderAll();
+        renderActivity();
       }
       if (e.target.matches("input[data-budget]")) {
         state.budget[e.target.dataset.budget] = parseFloat(e.target.value) || 0;
-        saveState(state);
+        logActivity("updated budget · " + e.target.dataset.budget);
+        queuePush();
         renderBudget();
+        renderActivity();
       }
     });
 
@@ -901,23 +1118,43 @@
       if (!btn) return;
       const id = btn.dataset.slot;
       state.done[id] = !state.done[id];
-      saveState(state);
+      if (!state.doneMeta) state.doneMeta = {};
+      if (state.done[id]) {
+        state.doneMeta[id] = { who: currentWho(), at: new Date().toISOString() };
+        const pid = (typeof activePlaceId === "function") ? activePlaceId(days.fri.concat(days.sat, days.sun).find(s => s.id === id) || { id, default: id, swaps: [] }) : id;
+        const slot = [...days.fri, ...days.sat, ...days.sun].find(s => s.id === id);
+        const place = places[activePlaceId(slot)];
+        logActivity("marked done · " + (place ? place.name : id));
+      } else {
+        delete state.doneMeta[id];
+        logActivity("undid done · " + id);
+      }
+      queuePush();
       renderAll();
+      renderActivity();
     });
 
     document.body.addEventListener("input", (e) => {
       if (e.target.matches("textarea.notes")) {
         state.notes[e.target.dataset.note] = e.target.value;
+        // debounce activity for notes
+        clearTimeout(window.__noteLog);
+        window.__noteLog = setTimeout(() => {
+          logActivity("edited a note");
+          queuePush();
+          renderActivity();
+        }, 1200);
         saveState(state);
-        // don't full re-render (keeps focus)
         updateWhatsNext();
       }
     });
 
     document.getElementById("resetBudget").addEventListener("click", () => {
       state.budget = {};
-      saveState(state);
+      logActivity("reset budget estimates");
+      queuePush();
       renderBudget();
+      renderActivity();
     });
 
     // PWA install
@@ -949,7 +1186,10 @@
     }
 
     renderAll();
+    renderWho();
+    pullRemote();
     setInterval(updateWhatsNext, 60000);
+    setInterval(() => { if (who) pullRemote(); }, 12000);
   </script>
 </body>
 </html>
