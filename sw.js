@@ -1,4 +1,4 @@
-const CACHE = "nate-nini-toronto-v14";
+const CACHE = "nate-nini-toronto-v15";
 const ASSETS = [
   "./",
   "./index.html",
