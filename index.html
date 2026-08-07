@@ -63,7 +63,7 @@
       color: #fff;
       overflow: hidden;
       border-radius: 0 0 28px 28px;
-      min-height: 52vh;
+      min-height: 42vh;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -156,7 +156,7 @@
     .progress-copy strong { display: block; font-size: 0.9rem; }
     .progress-copy span { font-size: 0.75rem; opacity: 0.8; }
 
-    .content { padding: 0 1rem; }
+    .content { padding: 0 1rem 0.5rem; }
 
     /* Who picker */
     .who-bar {
@@ -490,6 +490,102 @@
     }
     #panel-tools .node { display: none; }
 
+    .content { padding: 0 1rem 0.5rem; }
+    .who-bar { margin: 0.85rem 0 0.25rem; gap: 0.5rem; }
+    .who-bar button { padding: 0.55rem 0.55rem; border-radius: 16px; }
+    .who-bar button img { width: 52px; height: 52px; }
+    .sync-status, .gps-live { font-size: 0.75rem; margin: 0.15rem 0 0.45rem; }
+    .gps-banner { margin: 0.5rem 0; padding: 0.75rem 0.85rem; }
+    .sticky-now { margin: 0.15rem 0 0.75rem; padding: 0.75rem 0.85rem; }
+    .card {
+      padding: 0.85rem 0.85rem 0.85rem 0.75rem;
+      margin: 0 0 0.65rem 2.35rem;
+    }
+    .card h3 { font-size: 1.08rem; margin: 0 0 0.15rem; }
+    .do { font-size: 0.88rem; color: var(--muted); }
+    .addr { font-size: 0.8rem; margin: 0 0 0.3rem; }
+    .actions { gap: 0.35rem; margin-top: 0.65rem; }
+    .btn { padding: 0.58rem 0.8rem; font-size: 0.8rem; border-radius: 12px; }
+    .day-head { margin: 0.85rem 0 0.35rem; }
+    .drag-hint { margin: 0 0 0.55rem; font-size: 0.75rem; }
+    .section-title { font-size: 1.35rem; margin: 0.9rem 0 0.55rem; }
+    .notes { min-height: 2.2rem; padding: 0.55rem 0.7rem; margin-top: 0.45rem; }
+    .swap-row { margin-top: 0.65rem; padding-top: 0.55rem; }
+    .picker-btn {
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--bg-deep);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.75rem 0.85rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .picker-btn span.chev { color: var(--gold); font-weight: 800; }
+    .picker-sheet {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(0,0,0,0.55);
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .picker-sheet.show { display: flex; }
+    .picker-panel {
+      width: min(480px, 100%);
+      max-height: 70vh;
+      overflow: auto;
+      background: var(--card);
+      border-radius: 20px 20px 0 0;
+      border: 1px solid var(--line);
+      padding: 0.75rem 0.75rem calc(1rem + var(--safe-b));
+      box-shadow: var(--shadow);
+    }
+    .picker-panel h4 {
+      margin: 0.25rem 0.35rem 0.75rem;
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 1.25rem;
+      color: var(--ink);
+    }
+    .picker-option {
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--bg-deep);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.85rem 0.9rem;
+      margin-bottom: 0.45rem;
+      cursor: pointer;
+    }
+    .picker-option.active {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .picker-cancel {
+      width: 100%;
+      margin-top: 0.35rem;
+      font: inherit;
+      font-weight: 700;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.8rem;
+      cursor: pointer;
+    }
+
+
     .day-head {
       display: flex; align-items: center; justify-content: space-between;
       gap: 0.75rem; margin: 1.1rem 0 0.85rem;
@@ -644,15 +740,15 @@
     <div class="content">
 
     <div class="who-bar" id="whoBar" role="radiogroup" aria-label="Who is using this phone">
-      <span>Who is using this phone? (pick one)</span>
+      <span>This phone</span>
       <button type="button" role="radio" aria-checked="false" data-who="Nate"><img src="photo-nate.png" alt="" /><span>Nate <span class="check" aria-hidden="true">✓</span></span></button>
       <button type="button" role="radio" aria-checked="false" data-who="Nini Bear"><img src="photo-nini.png" alt="" /><span>Nini Bear <span class="check" aria-hidden="true">✓</span></span></button>
     </div>
-    <p class="sync-status" id="syncStatus">Pick one name on this phone — the other phone picks the other</p>
+    <p class="sync-status" id="syncStatus">Pick Nate or Nini Bear</p>
     <p class="gps-live" id="gpsLive"></p>
     <div id="gpsBanner" class="gps-banner" role="status">
-      <strong>Live distances need location</strong>
-      <p>Used only while this guide is on screen. Stops when you leave the app or switch tabs.</p>
+      <strong>Turn on location</strong>
+      <p>Distances update only while this guide is open.</p>
       <button type="button" class="btn btn-primary" id="enableGpsBtn">Enable location</button>
     </div>
 
@@ -687,34 +783,32 @@
 
     <section id="panel-tools" class="panel" role="tabpanel">
 
-      <h2 class="section-title">Buy before you go</h2>
+      <h2 class="section-title">Tickets</h2>
       <div class="card ticket-card">
-        <h3 style="font-family:var(--serif);margin:0 0 0.35rem;">Ripley’s Aquarium</h3>
-        <p class="do">Timed tickets for <strong>Sat Aug 8, 10:30 or 11:00 AM</strong>. Buy online — cheaper and skips the line.</p>
+        <h3 style="font-family:var(--serif);margin:0 0 0.25rem;">Ripley’s</h3>
+        <p class="do">Sat 10:30 or 11:00 AM — buy timed tickets online.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="https://www.ripleys.com/attractions/ripleys-aquarium-of-canada" target="_blank" rel="noopener">Buy Ripley’s tickets</a>
+          <a class="btn btn-primary" href="https://www.ripleys.com/attractions/ripleys-aquarium-of-canada" target="_blank" rel="noopener">Buy tickets</a>
         </div>
       </div>
       <div class="card ticket-card">
-        <h3 style="font-family:var(--serif);margin:0 0 0.35rem;">TTC day pass (cheapest full-day transit)</h3>
-        <p class="do"><strong>$13.50</strong> PRESTO day pass = unlimited TTC for the day (best if you ride 4+ times). Buy at any <strong>subway station fare machine</strong> or Shoppers Drug Mart — not sold online as a day-pass ticket.</p>
-        <p class="do" style="margin-top:0.5rem;">Cheaper for few rides: tap credit/debit (~$3.30–$3.35, 2-hour transfer) or load PRESTO in Apple Wallet.</p>
+        <h3 style="font-family:var(--serif);margin:0 0 0.25rem;">TTC</h3>
+        <p class="do">Day pass $13.50 at a subway machine or Shoppers. Few rides: tap card.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="https://www.ttc.ca/Fares-and-passes" target="_blank" rel="noopener">TTC fares &amp; day pass info</a>
-          <a class="btn btn-soft" href="https://www.prestocard.ca/en" target="_blank" rel="noopener">Get / load PRESTO</a>
-          <a class="btn btn-soft" href="https://www.prestocard.ca/en/products/presto-ttc-tickets" target="_blank" rel="noopener">PRESTO day ticket info</a>
+          <a class="btn btn-soft" href="https://www.ttc.ca/Fares-and-passes" target="_blank" rel="noopener">TTC fares</a>
+          <a class="btn btn-soft" href="https://www.prestocard.ca/en" target="_blank" rel="noopener">PRESTO</a>
         </div>
       </div>
       <div class="card">
-        <h3 style="font-family:var(--serif);margin:0 0 0.35rem;">Mild Afro (Saturday)</h3>
-        <p class="do">Usually cover / door — call ahead. No required advance ticket like Ripley’s.</p>
+        <h3 style="font-family:var(--serif);margin:0 0 0.25rem;">Mild Afro</h3>
+        <p class="do">Cover at the door — call if you want.</p>
         <div class="actions">
-          <a class="btn btn-soft" href="tel:6473688355">Call Mild Afro</a>
-          <a class="btn btn-soft" href="https://mildafrolounge.com/" target="_blank" rel="noopener">Mild Afro site</a>
+          <a class="btn btn-soft" href="tel:6473688355">Call</a>
+          <a class="btn btn-soft" href="https://mildafrolounge.com/" target="_blank" rel="noopener">Site</a>
         </div>
       </div>
 
-      <h2 class="section-title">Who updated what</h2>
+      <h2 class="section-title">Activity</h2>
       <div class="card">
         <ul class="activity-list" id="activityList"><li class="meta">No activity yet</li></ul>
         <div class="actions">
@@ -722,10 +816,10 @@
         </div>
       </div>
 
-      <h2 class="section-title">Before you leave</h2>
+      <h2 class="section-title">Checklist</h2>
       <ul class="check-list" id="checklist"></ul>
 
-      <h2 class="section-title">Budget <span style="font-size:0.85rem;color:var(--muted);font-family:var(--sans);font-weight:500">(tap to edit)</span></h2>
+      <h2 class="section-title">Budget</h2>
       <div class="card">
         <table class="budget-table">
           <thead>
@@ -734,26 +828,21 @@
           <tbody id="budgetBody"></tbody>
         </table>
         <div class="budget-summary">
-          <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Running total vs $800</div>
+          <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Total vs $800</div>
           <p class="big" id="budgetTotal">$0</p>
           <p id="budgetDelta" style="margin:0;font-weight:600;"></p>
-          <p style="margin:0.5rem 0 0;font-size:0.85rem;color:var(--muted);">Hotel $325 + car $194.42 are locked. Edits sync for both of you.</p>
         </div>
         <div class="actions">
           <button type="button" class="btn btn-soft" id="resetBudget">Reset estimates</button>
         </div>
       </div>
 
-      <h2 class="section-title">Quick contacts</h2>
+      <h2 class="section-title">Contacts</h2>
       <div class="card">
-        <p class="do"><strong>Enterprise YOW</strong> — <a href="tel:6132480005">613-248-0005</a></p>
-        <p class="do"><strong>Best Western</strong> — <a href="tel:4166201234">416-620-1234</a></p>
-        <p class="do"><strong>Funkey’s</strong> — <a href="tel:6476293485">647-629-3485</a></p>
-        <p class="do"><strong>Mild Afro</strong> — <a href="tel:6473688355">647-368-8355</a></p>
-        <div class="actions">
-          <a class="btn btn-soft" href="https://www.ripleys.com/attractions/ripleys-aquarium-of-canada" target="_blank" rel="noopener">Ripley’s tickets</a>
-          <a class="btn btn-soft" href="https://mildafrolounge.com/" target="_blank" rel="noopener">Mild Afro</a>
-        </div>
+        <p class="do"><strong>Enterprise</strong> · <a href="tel:6132480005">613-248-0005</a></p>
+        <p class="do"><strong>Hotel</strong> · <a href="tel:4166201234">416-620-1234</a></p>
+        <p class="do"><strong>Funkey’s</strong> · <a href="tel:6476293485">647-629-3485</a></p>
+        <p class="do"><strong>Mild Afro</strong> · <a href="tel:6473688355">647-368-8355</a></p>
       </div>
 
       <h2 class="section-title">Packing</h2>
@@ -763,6 +852,14 @@
     </div><!-- .content -->
 
     <p class="footer-note">Nate &amp; Nini Bear · Aug 2026 · progress syncs for both phones</p>
+    <div id="pickerSheet" class="picker-sheet" hidden>
+      <div class="picker-panel" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+        <h4 id="pickerTitle">Choose stop</h4>
+        <div id="pickerOptions"></div>
+        <button type="button" class="picker-cancel" id="pickerCancel">Cancel</button>
+      </div>
+    </div>
+
     <nav class="dock" role="tablist" aria-label="Trip sections">
       <button class="tab" role="tab" data-panel="fri" aria-selected="true"><span class="ico">✦</span>Fri</button>
       <button class="tab" role="tab" data-panel="sat" aria-selected="false"><span class="ico">◎</span>Sat</button>
@@ -772,7 +869,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "nate-nini-toronto-2026-v2";
+    const STORAGE_KEY = "nate-nini-toronto-2026-v3";
     const WHO_KEY = "nate-nini-who";
     const SYNC_URL = "https://nate-nini-trip-sync.butter-count.workers.dev";
 
@@ -1098,7 +1195,10 @@
       panel: "fri",
       installDismissed: false,
       nearDismiss: {},
-      order: { fri: [], sat: [], sun: [] }
+      order: { fri: [], sat: [], sun: [] },
+      orderMeta: { fri: null, sat: null, sun: null },
+      clocks: { done: {}, swaps: {}, order: {}, notes: {}, checks: {}, pack: {}, budget: {}, nearDismiss: {} },
+      rev: 0
     }, loadState());
 
     let who = localStorage.getItem(WHO_KEY) || "";
@@ -1161,25 +1261,172 @@
 
     function stateFingerprint(s) {
       return JSON.stringify({
-        swaps: s.swaps, done: s.done, doneMeta: s.doneMeta, notes: s.notes,
+        rev: s.rev, swaps: s.swaps, done: s.done, doneMeta: s.doneMeta, notes: s.notes,
         checks: s.checks, pack: s.pack, budget: s.budget, order: s.order,
-        nearDismiss: s.nearDismiss, updatedAt: s.updatedAt, activity: (s.activity || []).slice(0, 5)
+        nearDismiss: s.nearDismiss, clocks: s.clocks, updatedAt: s.updatedAt,
+        activity: (s.activity || []).slice(0, 5)
       });
     }
 
-    function mergeOrder(local, remote) {
+    function ensureClocks(s) {
+      if (!s.clocks) s.clocks = {};
+      for (const k of ["done","swaps","order","notes","checks","pack","budget","nearDismiss"]) {
+        if (!s.clocks[k] || typeof s.clocks[k] !== "object") s.clocks[k] = {};
+      }
+      if (!s.orderMeta) s.orderMeta = { fri: null, sat: null, sun: null };
+      if (typeof s.rev !== "number") s.rev = 0;
+      return s;
+    }
+
+    function clockTouch(kind, key) {
+      ensureClocks(state);
+      state.clocks[kind][key] = { at: new Date().toISOString(), by: currentWho() };
+    }
+
+    function clockAt(s, kind, key) {
+      const c = s.clocks && s.clocks[kind] && s.clocks[kind][key];
+      return c && c.at ? Date.parse(c.at) : 0;
+    }
+
+    function mergeMapLWW(localMap, remoteMap, localClocks, remoteClocks, kind) {
+      const out = {};
+      const keys = new Set([
+        ...Object.keys(localMap || {}),
+        ...Object.keys(remoteMap || {}),
+        ...Object.keys((localClocks && localClocks[kind]) || {}),
+        ...Object.keys((remoteClocks && remoteClocks[kind]) || {})
+      ]);
+      keys.forEach(k => {
+        const lt = clockAt({ clocks: localClocks }, kind, k);
+        const rt = clockAt({ clocks: remoteClocks }, kind, k);
+        if (lt === 0 && rt === 0) {
+          if (Object.prototype.hasOwnProperty.call(localMap || {}, k)) out[k] = localMap[k];
+          else if (Object.prototype.hasOwnProperty.call(remoteMap || {}, k)) out[k] = remoteMap[k];
+          return;
+        }
+        if (lt >= rt) {
+          if (Object.prototype.hasOwnProperty.call(localMap || {}, k)) out[k] = localMap[k];
+        } else {
+          if (Object.prototype.hasOwnProperty.call(remoteMap || {}, k)) out[k] = remoteMap[k];
+        }
+      });
+      return out;
+    }
+
+    function mergeClocks(localC, remoteC) {
+      const out = {};
+      const kinds = new Set([...Object.keys(localC || {}), ...Object.keys(remoteC || {})]);
+      kinds.forEach(kind => {
+        out[kind] = {};
+        const keys = new Set([
+          ...Object.keys((localC && localC[kind]) || {}),
+          ...Object.keys((remoteC && remoteC[kind]) || {})
+        ]);
+        keys.forEach(k => {
+          const l = localC && localC[kind] && localC[kind][k];
+          const r = remoteC && remoteC[kind] && remoteC[kind][k];
+          const lt = l && l.at ? Date.parse(l.at) : 0;
+          const rt = r && r.at ? Date.parse(r.at) : 0;
+          out[kind][k] = lt >= rt ? (l || r) : (r || l);
+        });
+      });
+      return out;
+    }
+
+    function mergeOrderCAS(local, remote, localClocks, remoteClocks) {
       const out = { fri: [], sat: [], sun: [] };
       for (const day of ["fri", "sat", "sun"]) {
-        const r = Array.isArray(remote && remote[day]) ? remote[day] : [];
-        const l = Array.isArray(local && local[day]) ? local[day] : [];
-        // Prefer non-empty remote day unless local is dirty for that write window
-        out[day] = (Date.now() < localDirtyUntil && l.length) ? l : (r.length ? r : l);
+        const lt = clockAt({ clocks: localClocks }, "order", day);
+        const rt = clockAt({ clocks: remoteClocks }, "order", day);
+        const l = (local && local[day]) || [];
+        const r = (remote && remote[day]) || [];
+        out[day] = lt >= rt ? (l.length ? l : r) : (r.length ? r : l);
       }
       return out;
     }
 
-    function mergeNearDismiss(local, remote) {
-      return Object.assign({}, remote || {}, local || {});
+    function mergeActivity(a, b) {
+      const all = [...(a || []), ...(b || [])];
+      const seen = new Set();
+      const out = [];
+      all.forEach(item => {
+        const id = (item.at || "") + "|" + (item.who || "") + "|" + (item.what || "");
+        if (seen.has(id)) return;
+        seen.add(id);
+        out.push(item);
+      });
+      out.sort((x, y) => Date.parse(y.at || 0) - Date.parse(x.at || 0));
+      return out.slice(0, 80);
+    }
+
+    function mergeStates(remote, local) {
+      ensureClocks(remote);
+      ensureClocks(local);
+      const clocks = mergeClocks(local.clocks, remote.clocks);
+      const merged = {
+        swaps: mergeMapLWW(local.swaps, remote.swaps, local.clocks, remote.clocks, "swaps"),
+        done: mergeMapLWW(local.done, remote.done, local.clocks, remote.clocks, "done"),
+        doneMeta: Object.assign({}, remote.doneMeta || {}, local.doneMeta || {}),
+        notes: mergeMapLWW(local.notes, remote.notes, local.clocks, remote.clocks, "notes"),
+        checks: mergeMapLWW(local.checks, remote.checks, local.clocks, remote.clocks, "checks"),
+        pack: mergeMapLWW(local.pack, remote.pack, local.clocks, remote.clocks, "pack"),
+        budget: mergeMapLWW(local.budget, remote.budget, local.clocks, remote.clocks, "budget"),
+        nearDismiss: Object.assign({}, remote.nearDismiss || {}, local.nearDismiss || {}),
+        order: mergeOrderCAS(local.order, remote.order, local.clocks, remote.clocks),
+        orderMeta: Object.assign({}, remote.orderMeta || {}, local.orderMeta || {}),
+        activity: mergeActivity(local.activity, remote.activity),
+        clocks,
+        rev: Math.max(local.rev || 0, remote.rev || 0),
+        updatedAt: local.updatedAt && remote.updatedAt
+          ? (Date.parse(local.updatedAt) >= Date.parse(remote.updatedAt) ? local.updatedAt : remote.updatedAt)
+          : (local.updatedAt || remote.updatedAt),
+        updatedBy: local.updatedAt && remote.updatedAt
+          ? (Date.parse(local.updatedAt) >= Date.parse(remote.updatedAt) ? local.updatedBy : remote.updatedBy)
+          : (local.updatedBy || remote.updatedBy),
+        panel: local.panel,
+        installDismissed: local.installDismissed
+      };
+      // prefer newer doneMeta per slot
+      const dm = {};
+      const dkeys = new Set([...Object.keys(local.doneMeta || {}), ...Object.keys(remote.doneMeta || {})]);
+      dkeys.forEach(k => {
+        const l = (local.doneMeta || {})[k];
+        const r = (remote.doneMeta || {})[k];
+        if (!l) dm[k] = r;
+        else if (!r) dm[k] = l;
+        else dm[k] = Date.parse(l.at || 0) >= Date.parse(r.at || 0) ? l : r;
+      });
+      merged.doneMeta = dm;
+      return merged;
+    }
+
+    function syncPayload(s) {
+      ensureClocks(s);
+      return {
+        rev: s.rev || 0,
+        swaps: s.swaps,
+        done: s.done,
+        doneMeta: s.doneMeta || {},
+        notes: s.notes,
+        checks: s.checks,
+        pack: s.pack,
+        budget: s.budget,
+        activity: s.activity || [],
+        order: s.order || { fri: [], sat: [], sun: [] },
+        orderMeta: s.orderMeta || {},
+        nearDismiss: s.nearDismiss || {},
+        clocks: s.clocks,
+        updatedAt: s.updatedAt,
+        updatedBy: s.updatedBy
+      };
+    }
+
+    async function fetchRemote() {
+      const res = await fetch(SYNC_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const remote = await res.json();
+      ensureClocks(remote);
+      return remote;
     }
 
     async function pullRemote() {
@@ -1187,27 +1434,16 @@
       if (Date.now() < localDirtyUntil) return;
       pullInFlight = true;
       try {
-        const res = await fetch(SYNC_URL, { cache: "no-store" });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const remote = await res.json();
+        const remote = await fetchRemote();
         const fp = stateFingerprint(remote);
         if (fp === lastRemoteFp) {
-          setSyncStatus(
-            (who ? ("Signed in as " + who + " · ") : "") + "Synced",
-            "ok"
-          );
+          setSyncStatus((who ? ("Signed in as " + who + " · ") : "") + "Synced", "ok");
           return;
         }
         lastRemoteFp = fp;
         applyingRemote = true;
-        const keys = ["swaps","done","doneMeta","notes","checks","pack","budget","activity","updatedAt","updatedBy"];
-        keys.forEach(k => {
-          if (remote[k] !== undefined) state[k] = remote[k];
-        });
-        if (remote.order !== undefined) state.order = mergeOrder(state.order, remote.order);
-        if (remote.nearDismiss !== undefined) {
-          state.nearDismiss = mergeNearDismiss(state.nearDismiss, remote.nearDismiss);
-        }
+        const merged = mergeStates(remote, state);
+        Object.keys(merged).forEach(k => { state[k] = merged[k]; });
         saveState(state);
         if (!dragActive) {
           renderAll();
@@ -1229,27 +1465,50 @@
     async function pushRemote() {
       if (!who || applyingRemote) return;
       try {
-        const payload = {
-          swaps: state.swaps,
-          done: state.done,
-          doneMeta: state.doneMeta || {},
-          notes: state.notes,
-          checks: state.checks,
-          pack: state.pack,
-          budget: state.budget,
-          activity: state.activity || [],
-          order: state.order || { fri: [], sat: [], sun: [] },
-          nearDismiss: state.nearDismiss || {},
-          updatedAt: state.updatedAt,
-          updatedBy: state.updatedBy
-        };
-        const res = await fetch(SYNC_URL, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        setSyncStatus("Signed in as " + who + " · saved for both", "ok");
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const remote = await fetchRemote();
+          const merged = mergeStates(remote, state);
+          const baseRev = remote.rev || 0;
+          merged.rev = baseRev + 1;
+          merged.updatedAt = new Date().toISOString();
+          merged.updatedBy = who;
+          const payload = syncPayload(merged);
+          payload.baseRev = baseRev;
+
+          const res = await fetch(SYNC_URL, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "If-Match": String(baseRev),
+              "X-Base-Rev": String(baseRev)
+            },
+            body: JSON.stringify(payload)
+          });
+
+          // Legacy worker ignores If-Match; verify with a follow-up GET (CAS loop)
+          if (res.status === 409) {
+            const conflict = await res.json();
+            const m = mergeStates(conflict, state);
+            Object.keys(m).forEach(k => { state[k] = m[k]; });
+            continue;
+          }
+          if (!res.ok) throw new Error("HTTP " + res.status);
+
+          const verify = await fetchRemote();
+          const sameRev = (verify.rev || 0) === merged.rev;
+          const sameFp = stateFingerprint(verify) === stateFingerprint(merged);
+          if (sameRev || sameFp) {
+            Object.keys(merged).forEach(k => { state[k] = merged[k]; });
+            lastRemoteFp = stateFingerprint(state);
+            saveState(state);
+            setSyncStatus("Signed in as " + who + " · saved (rev " + state.rev + ")", "ok");
+            return;
+          }
+          // Lost race — merge winner and retry
+          const again = mergeStates(verify, merged);
+          Object.keys(again).forEach(k => { state[k] = again[k]; });
+        }
+        setSyncStatus("Sync busy — tap Sync now", "err");
       } catch (err) {
         setSyncStatus("Could not save sync — " + (err.message || "retry"), "err");
       }
@@ -1261,7 +1520,6 @@
       clearTimeout(syncTimer);
       syncTimer = setTimeout(pushRemote, 400);
     }
-
 
     function activePlaceId(slot) {
       const chosen = state.swaps[slot.id];
@@ -1463,10 +1721,10 @@
       if (options.length > 1) {
         swapHtml = `
           <div class="swap-row">
-            <label for="swap-${slot.id}">Swap this stop</label>
-            <select class="swap" id="swap-${slot.id}" data-slot="${slot.id}">
-              ${options.map(id => `<option value="${id}" ${id === placeId ? "selected" : ""}>${places[id].name}${id === slot.default ? " (plan)" : ""}</option>`).join("")}
-            </select>
+            <label>Swap stop</label>
+            <button type="button" class="picker-btn open-picker" data-slot="${slot.id}" data-options="${options.join(",")}" data-selected="${placeId}">
+              <span>${places[placeId].name}</span><span class="chev">▾</span>
+            </button>
           </div>`;
       }
 
@@ -1483,7 +1741,7 @@
               <div data-dist-slot="${slot.id}">${distHtml(place)}</div>
               ${swapHtml}
               <div class="actions">
-                <a class="btn btn-primary" href="${mapsUrl(place, geo.ok ? geo : null)}" data-maps-place="${placeId}" target="_blank" rel="noopener">Open in Google Maps</a>
+                <a class="btn btn-primary" href="${mapsUrl(place, geo.ok ? geo : null)}" data-maps-place="${placeId}" target="_blank" rel="noopener">Maps</a>
                 ${place.ticketUrl ? `<a class="btn btn-soft" href="${place.ticketUrl}" target="_blank" rel="noopener">${place.ticketLabel || "Buy tickets"}</a>` : ""}
                 <button type="button" class="btn ${done ? "btn-ghost" : "btn-ok"} toggle-done" data-slot="${slot.id}">${done ? "Undo" : "Done"}</button>
                 <span class="move-btns">
@@ -1507,7 +1765,7 @@
           <h2 class="section-title">${title}</h2>
           <button type="button" class="btn btn-ghost reset-day" data-day="${key}">Reset ${dayName} order</button>
         </div>
-        <p class="drag-hint">Drag ⠿ to reorder — What’s next, status, and maps follow your order</p>
+        <p class="drag-hint">Drag ⠿ to reorder · Next follows your list</p>
         <div class="timeline" data-day="${key}">` +
         orderedSlots(key).map(s => renderSlot(s, key)).join("") +
         `</div>`;
@@ -1652,6 +1910,9 @@
     function saveDayOrder(dayKey, ids) {
       if (!state.order) state.order = { fri: [], sat: [], sun: [] };
       state.order[dayKey] = ids.slice();
+      clockTouch("order", dayKey);
+      if (!state.orderMeta) state.orderMeta = {};
+      state.orderMeta[dayKey] = { at: new Date().toISOString(), by: currentWho() };
       logActivity("reordered " + ({ fri: "Friday", sat: "Saturday", sun: "Sunday" }[dayKey] || dayKey));
       queuePush();
       updateWhatsNext();
@@ -1790,6 +2051,7 @@
     }
 
     function renderAll() {
+      ensureClocks(state);
       renderDay("fri", "Friday · Aug 7");
       renderDay("sat", "Saturday · Aug 8");
       renderDay("sun", "Sunday · Aug 9");
@@ -1837,15 +2099,7 @@
 
 
     document.body.addEventListener("change", (e) => {
-      if (e.target.matches("select.swap")) {
-        state.swaps[e.target.dataset.slot] = e.target.value;
-        const place = places[e.target.value];
-        logActivity("swapped a stop → " + (place ? place.name : e.target.value));
-        queuePush();
-        renderAll();
-        renderActivity();
-        checkNearStops();
-      }
+      /* swaps via custom picker */
       if (e.target.matches('input[type="checkbox"][data-key]')) {
         const key = e.target.dataset.key;
         state[key][e.target.id] = e.target.checked;
@@ -1882,6 +2136,7 @@
         const dayKey = resetBtn.dataset.day;
         if (!state.order) state.order = { fri: [], sat: [], sun: [] };
         state.order[dayKey] = [];
+        clockTouch("order", dayKey);
         logActivity("reset " + dayKey + " order to plan");
         queuePush();
         renderAll();
@@ -1901,6 +2156,7 @@
       if (!btn) return;
       const id = btn.dataset.slot;
       state.done[id] = !state.done[id];
+      clockTouch("done", id);
       if (!state.doneMeta) state.doneMeta = {};
       if (state.done[id]) {
         state.doneMeta[id] = { who: currentWho(), at: new Date().toISOString() };
@@ -1921,6 +2177,7 @@
     document.body.addEventListener("input", (e) => {
       if (e.target.matches("textarea.notes")) {
         state.notes[e.target.dataset.note] = e.target.value;
+        clockTouch("notes", e.target.dataset.note);
         // debounce activity for notes
         clearTimeout(window.__noteLog);
         window.__noteLog = setTimeout(() => {
@@ -1941,12 +2198,66 @@
       renderActivity();
     });
 
+
+    let pickerSlot = null;
+
+    function closePicker() {
+      const sheet = document.getElementById("pickerSheet");
+      if (!sheet) return;
+      sheet.classList.remove("show");
+      sheet.hidden = true;
+      pickerSlot = null;
+    }
+
+    function openPicker(slotId, options, selected) {
+      const sheet = document.getElementById("pickerSheet");
+      const box = document.getElementById("pickerOptions");
+      const title = document.getElementById("pickerTitle");
+      if (!sheet || !box) return;
+      pickerSlot = slotId;
+      title.textContent = "Swap stop";
+      box.innerHTML = options.map(id => {
+        const p = places[id];
+        const active = id === selected ? " active" : "";
+        return `<button type="button" class="picker-option${active}" data-place="${id}">${escapeHtml(p ? p.name : id)}</button>`;
+      }).join("");
+      sheet.hidden = false;
+      sheet.classList.add("show");
+    }
+
+    document.body.addEventListener("click", (e) => {
+      const open = e.target.closest(".open-picker");
+      if (open) {
+        const opts = (open.dataset.options || "").split(",").filter(Boolean);
+        openPicker(open.dataset.slot, opts, open.dataset.selected);
+        return;
+      }
+      const opt = e.target.closest(".picker-option");
+      if (opt && pickerSlot) {
+        const placeId = opt.dataset.place;
+        state.swaps[pickerSlot] = placeId;
+        clockTouch("swaps", pickerSlot);
+        const place = places[placeId];
+        logActivity("swapped a stop → " + (place ? place.name : placeId));
+        closePicker();
+        queuePush();
+        renderAll();
+        renderActivity();
+        checkNearStops();
+        return;
+      }
+      if (e.target.id === "pickerCancel" || e.target.id === "pickerSheet") {
+        closePicker();
+      }
+    });
+
     document.getElementById("nearDoneBtn").addEventListener("click", () => {
       if (!nearCandidate) return;
       const id = nearCandidate.slot.id;
       if (state.done[id]) { hideNearPrompt(); return; }
       const livePlace = places[activePlaceId(nearCandidate.slot)];
       state.done[id] = true;
+      clockTouch("done", id);
       if (!state.doneMeta) state.doneMeta = {};
       state.doneMeta[id] = { who: currentWho(), at: new Date().toISOString() };
       logActivity("marked done (nearby) · " + (livePlace ? livePlace.name : nearCandidate.place.name));
@@ -1959,6 +2270,7 @@
       if (!nearCandidate) return;
       if (!state.nearDismiss) state.nearDismiss = {};
       state.nearDismiss[nearCandidate.slot.id] = true;
+      clockTouch("nearDismiss", nearCandidate.slot.id);
       saveState(state);
       hideNearPrompt();
       queuePush();
