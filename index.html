@@ -785,6 +785,14 @@
         </div>
       </div>
       <div class="card ticket-card">
+        <h3 style="font-family:var(--serif);margin:0 0 0.25rem;">Wet’n’Wild</h3>
+        <p class="do">Sat afternoon after Ripley’s. Online tickets ~$50 each. Parking ~$25. Swap to Wonderland in the day list if you want coasters too.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://wetnwildtoronto.com/plan-a-visit/tickets/" target="_blank" rel="noopener">Buy Wet’n’Wild</a>
+          <a class="btn btn-soft" href="https://www.sixflags.com/canadaswonderland" target="_blank" rel="noopener">Wonderland (swap)</a>
+        </div>
+      </div>
+      <div class="card ticket-card">
         <h3 style="font-family:var(--serif);margin:0 0 0.25rem;">TTC</h3>
         <p class="do">Day pass $13.50 at a subway machine or Shoppers. Few rides: tap card.</p>
         <div class="actions">
@@ -862,7 +870,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "nate-nini-toronto-2026-v3";
+    const STORAGE_KEY = "nate-nini-toronto-2026-v4";
     const WHO_KEY = "nate-nini-who";
     const SYNC_URL = "https://nate-nini-trip-sync.butter-count.workers.dev";
 
@@ -951,6 +959,24 @@
         ticketLabel: "Buy tickets",
         locked: true
       },
+      wetnwild: {
+        name: "Wet’n’Wild Toronto",
+        addr: "7855 Finch Ave W, Brampton",
+        do: "Waterpark afternoon after Ripley’s (~3–4 hrs). Buy tickets online. Parking ~$25. Swimsuits + towel. Then hotel nap before Mild Afro.",
+        maps: "https://maps.google.com/?q=Wet+n+Wild+Toronto+7855+Finch+Ave+W",
+        lat: 43.7294, lng: -79.6186, mode: "drive",
+        ticketUrl: "https://wetnwildtoronto.com/plan-a-visit/tickets/",
+        ticketLabel: "Buy Wet’n’Wild tickets"
+      },
+      wonderland: {
+        name: "Canada’s Wonderland + Splash Works",
+        addr: "1 Canada’s Wonderland Dr, Vaughan",
+        do: "Optional swap: coasters + waterpark on one ticket. Longer day; parking ~$25–40. Only if you skip Wet’n’Wild.",
+        maps: "https://maps.google.com/?q=Canada's+Wonderland+Vaughan",
+        lat: 43.843, lng: -79.5423, mode: "drive",
+        ticketUrl: "https://www.sixflags.com/canadaswonderland",
+        ticketLabel: "Buy Wonderland tickets"
+      },
       recroom: {
         name: "The Rec Room",
         addr: "255 Bremner Blvd, Toronto",
@@ -975,7 +1001,7 @@
       market: {
         name: "St Lawrence Market",
         addr: "93–95 Front St E, Toronto",
-        do: "Saturday lunch. Carousel peameal bacon sandwich, browse stalls ~45 min. Famous Toronto food hall.",
+        do: "Quick browse only — photos and stalls. Skip a full lunch here to save money (snack if you want).",
         maps: "https://maps.google.com/?q=St+Lawrence+Market+Toronto",
         lat: 43.6487, lng: -79.3715, mode: "ttc",
       },
@@ -1101,11 +1127,10 @@
       ],
       sat: [
         { id: "s1", time: "10:30 AM", default: "ripleys", swaps: ["cntower"] },
-        { id: "s2", time: "12:30 PM", default: "recroom", swaps: ["greta", "playdium"] },
-        { id: "s3", time: "1:30 PM", default: "market", swaps: ["packedLunch", "entertainmentKitchen", "greelz"] },
-        { id: "s4", time: "3:00 PM", default: "yorkville", swaps: ["kensington", "distillery", "nathan", "harbourSunset"] },
-        { id: "s5", time: "6:00 PM", default: "harbourSunset", swaps: ["yorkville", "hotelStroll"] },
-        { id: "s6", time: "11:30 PM", default: "mildafro", swaps: ["barcode"] }
+        { id: "s2", time: "12:45 PM", default: "market", swaps: ["packedLunch", "hotelStroll"] },
+        { id: "s3", time: "2:00 PM", default: "wetnwild", swaps: ["wonderland"] },
+        { id: "s4", time: "6:30 PM", default: "hotelStroll", swaps: ["harbourSunset", "yorkville"] },
+        { id: "s5", time: "11:30 PM", default: "mildafro", swaps: ["barcode"] }
       ],
       sun: [
         { id: "u1", time: "11:00 AM", default: "hotel", swaps: [] },
@@ -1118,20 +1143,22 @@
     const defaultBudget = [
       { id: "hotel", label: "Hotel (booked)", amount: 325, locked: true },
       { id: "car", label: "Car rental (booked)", amount: 194.42, locked: true },
-      { id: "gas", label: "Gas (round trip)", amount: 60, locked: false },
+      { id: "gas", label: "Gas (round trip)", amount: 65, locked: false },
       { id: "ripleys", label: "Ripley’s ×2 (tax in)", amount: 95, locked: false },
+      { id: "wetnwild", label: "Wet’n’Wild ×2 (online)", amount: 100, locked: false },
+      { id: "parkPark", label: "Waterpark parking", amount: 25, locked: false },
       { id: "funkeys", label: "Funkey’s dinner", amount: 80, locked: false },
-      { id: "food", label: "Other food / snacks", amount: 45, locked: false },
-      { id: "ttc", label: "TTC day passes", amount: 27, locked: false },
-      { id: "games", label: "Rec Room / games", amount: 35, locked: false },
-      { id: "uber", label: "Uber (club to + from)", amount: 90, locked: false },
-      { id: "drinks", label: "Club drinks", amount: 35, locked: false },
+      { id: "food", label: "Other food / snacks", amount: 25, locked: false },
+      { id: "ttc", label: "TTC (Sat morning)", amount: 14, locked: false },
+      { id: "uber", label: "Uber (club to + from)", amount: 60, locked: false },
+      { id: "drinks", label: "Club drinks", amount: 20, locked: false },
       { id: "sun", label: "Sunday stop / parking", amount: 15, locked: false },
-      { id: "buffer", label: "Buffer / tips", amount: 25, locked: false }
+      { id: "buffer", label: "Buffer / tips", amount: 20, locked: false }
     ];
 
     const checklistItems = [
       { id: "c1", text: "Ripley’s timed tickets (Sat 10:30 or 11:00 AM)" },
+      { id: "c1b", text: "Wet’n’Wild tickets online (Wonderland only if you swap)" },
       { id: "c2", text: "Confirm car: Fri 7 AM pickup, Sun 7 PM return" },
       { id: "c3", text: "Call Funkey’s if you want a table (647-629-3485)" },
       { id: "c4", text: "Call Mild Afro for cover / dress code (647-368-8355)" },
@@ -1145,6 +1172,7 @@
       { id: "p3", text: "Phone mount + dual USB charger" },
       { id: "p4", text: "Snacks + water bottles for the drive" },
       { id: "p5", text: "Comfy walking shoes" },
+      { id: "p5b", text: "Swimsuits + towels (Wet’n’Wild)" },
       { id: "p6", text: "Light jacket (aquarium + night)" },
       { id: "p7", text: "Saturday club outfit (smart casual)" },
       { id: "p8", text: "Chargers / power bank" }
