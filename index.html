@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d3b4c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Nate & Nini" />
+  <meta name="description" content="Nate & Nini Bear — Ottawa to Toronto trip guide, Aug 7–9 2026" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Nate & Nini Bear · Toronto</title>
+  <style>
+    :root {
+      --ink: #12232b;
+      --muted: #5c717c;
+      --bg: #eef5f7;
+      --bg-deep: #d9e8ee;
+      --card: #ffffff;
+      --accent: #c45d4a;
+      --accent-soft: #f8e8e4;
+      --lake: #0d3b4c;
+      --lake-mid: #1a5a6e;
+      --gold: #c4a35a;
+      --ok: #2d6a4f;
+      --line: rgba(18, 35, 43, 0.1);
+      --shadow: 0 10px 30px rgba(13, 59, 76, 0.08);
+      --radius: 18px;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Figtree", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #f7e9e4 0%, transparent 55%),
+        radial-gradient(900px 400px at 100% 0%, #d5e8ef 0%, transparent 50%),
+        var(--bg);
+      min-height: 100dvh;
+      line-height: 1.45;
+    }
+    a { color: var(--lake-mid); }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 7rem; }
+    header.hero {
+      padding: 1.5rem 0 1rem;
+      text-align: center;
+    }
+    .eyebrow {
+      display: inline-flex;
+      gap: 0.4rem;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--lake-mid);
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--line);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+    }
+    h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(1.9rem, 6vw, 2.6rem);
+      line-height: 1.15;
+      margin: 0.75rem 0 0.35rem;
+      color: var(--lake);
+    }
+    .subtitle { color: var(--muted); margin: 0; font-size: 1rem; }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    .chip {
+      font-size: 0.8rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 0.4rem 0.7rem;
+      border-radius: 999px;
+      color: var(--muted);
+    }
+    .chip strong { color: var(--ink); }
+    .sticky-now {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      margin: 0.5rem 0 1rem;
+      padding: 0.85rem 1rem;
+      background: linear-gradient(135deg, var(--lake) 0%, var(--lake-mid) 100%);
+      color: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .sticky-now .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin: 0 0 0.2rem;
+    }
+    .sticky-now .next-title {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.15rem;
+      margin: 0;
+    }
+    .sticky-now .next-meta {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin: 0.25rem 0 0;
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.4rem;
+      margin: 1rem 0;
+      position: sticky;
+      top: 5.2rem;
+      z-index: 30;
+      background: rgba(238, 245, 247, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 0.4rem 0;
+    }
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--muted);
+      font: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.7rem 0.4rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] {
+      background: var(--lake);
+      color: #fff;
+      border-color: var(--lake);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .section-title {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.35rem;
+      margin: 1.25rem 0 0.75rem;
+      color: var(--lake);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 0.85rem;
+      box-shadow: var(--shadow);
+      transition: opacity 0.2s ease;
+    }
+    .card.done { opacity: 0.62; }
+    .card-top {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .time-pill {
+      flex: 0 0 auto;
+      min-width: 4.2rem;
+      text-align: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 0.45rem 0.4rem;
+      border-radius: 10px;
+      line-height: 1.2;
+    }
+    .card-body { flex: 1; min-width: 0; }
+    .card h3 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.15rem;
+      margin: 0 0 0.25rem;
+    }
+    .addr {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin: 0 0 0.5rem;
+    }
+    .do {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    .swap-row {
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px dashed var(--line);
+    }
+    .swap-row label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    select.swap {
+      width: 100%;
+      font: inherit;
+      font-weight: 500;
+      padding: 0.65rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+    }
+    .btn {
+      appearance: none;
+      border: none;
+      font: inherit;
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn-primary {
+      background: var(--lake);
+      color: #fff;
+    }
+    .btn-soft {
+      background: var(--bg-deep);
+      color: var(--lake);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .btn-ok {
+      background: var(--ok);
+      color: #fff;
+    }
+    .notes {
+      width: 100%;
+      margin-top: 0.65rem;
+      font: inherit;
+      padding: 0.65rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      resize: vertical;
+      min-height: 2.6rem;
+    }
+    .check-list { list-style: none; padding: 0; margin: 0; }
+    .check-list li {
+      display: flex;
+      gap: 0.7rem;
+      align-items: flex-start;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .check-list input { margin-top: 0.2rem; width: 1.1rem; height: 1.1rem; accent-color: var(--lake); }
+    .check-list label { flex: 1; cursor: pointer; }
+    .check-list li.done label { text-decoration: line-through; color: var(--muted); }
+    .budget-table { width: 100%; border-collapse: collapse; }
+    .budget-table th, .budget-table td {
+      text-align: left;
+      padding: 0.65rem 0.4rem;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+      vertical-align: middle;
+    }
+    .budget-table th { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .budget-table input {
+      width: 5.5rem;
+      font: inherit;
+      font-weight: 600;
+      padding: 0.4rem 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+    }
+    .budget-summary {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--accent-soft), #fff);
+      border: 1px solid var(--line);
+    }
+    .budget-summary .big {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.8rem;
+      margin: 0.2rem 0;
+    }
+    .over { color: var(--accent); }
+    .under { color: var(--ok); }
+    .install-banner {
+      display: none;
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px dashed var(--gold);
+    }
+    .install-banner.show { display: block; }
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 2rem;
+    }
+    .locked-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--lake);
+      background: var(--bg-deep);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+      margin-left: 0.35rem;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Ottawa → Toronto → Ottawa</div>
+      <h1>Nate &amp; Nini Bear</h1>
+      <p class="subtitle">Aug 7–9, 2026 · our one-stop trip guide</p>
+      <div class="chip-row">
+        <span class="chip"><strong>Hotel</strong> $325</span>
+        <span class="chip"><strong>Car</strong> $194.42</span>
+        <span class="chip"><strong>Cap</strong> $800</span>
+      </div>
+    </header>
+
+    <div id="installBanner" class="install-banner">
+      <strong>Add to Home Screen</strong>
+      <p style="margin:0.35rem 0 0.75rem;color:var(--muted);font-size:0.92rem;">
+        Keep this guide like an app. On iPhone: Share → Add to Home Screen. On Android: tap Install below if shown.
+      </p>
+      <button type="button" class="btn btn-primary" id="installBtn" hidden>Install app</button>
+      <button type="button" class="btn btn-ghost" id="dismissInstall">Got it</button>
+    </div>
+
+    <div class="sticky-now" id="stickyNow" aria-live="polite">
+      <p class="label">What’s next</p>
+      <p class="next-title" id="nextTitle">Loading…</p>
+      <p class="next-meta" id="nextMeta"></p>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Trip sections">
+      <button class="tab" role="tab" data-panel="fri" aria-selected="true">Fri</button>
+      <button class="tab" role="tab" data-panel="sat" aria-selected="false">Sat</button>
+      <button class="tab" role="tab" data-panel="sun" aria-selected="false">Sun</button>
+      <button class="tab" role="tab" data-panel="tools" aria-selected="false">Tools</button>
+    </nav>
+
+    <section id="panel-fri" class="panel active" role="tabpanel"></section>
+    <section id="panel-sat" class="panel" role="tabpanel"></section>
+    <section id="panel-sun" class="panel" role="tabpanel"></section>
+
+    <section id="panel-tools" class="panel" role="tabpanel">
+      <h2 class="section-title">Before you leave</h2>
+      <ul class="check-list" id="checklist"></ul>
+
+      <h2 class="section-title">Budget <span style="font-size:0.85rem;color:var(--muted);font-family:Figtree,sans-serif;font-weight:500">(tap to edit)</span></h2>
+      <div class="card">
+        <table class="budget-table">
+          <thead>
+            <tr><th>Item</th><th>CAD</th><th></th></tr>
+          </thead>
+          <tbody id="budgetBody"></tbody>
+        </table>
+        <div class="budget-summary">
+          <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Running total vs $800</div>
+          <p class="big" id="budgetTotal">$0</p>
+          <p id="budgetDelta" style="margin:0;font-weight:600;"></p>
+          <p style="margin:0.5rem 0 0;font-size:0.85rem;color:var(--muted);">Hotel $325 + car $194.42 are locked. Other rows stay on this phone only.</p>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-soft" id="resetBudget">Reset estimates</button>
+        </div>
+      </div>
+
+      <h2 class="section-title">Quick contacts</h2>
+      <div class="card">
+        <p class="do"><strong>Enterprise YOW</strong> — <a href="tel:6132480005">613-248-0005</a></p>
+        <p class="do"><strong>Best Western</strong> — <a href="tel:4166201234">416-620-1234</a></p>
+        <p class="do"><strong>Funkey’s</strong> — <a href="tel:6476293485">647-629-3485</a></p>
+        <p class="do"><strong>Mild Afro</strong> — <a href="tel:6473688355">647-368-8355</a></p>
+        <div class="actions">
+          <a class="btn btn-soft" href="https://www.ripleys.com/attractions/ripleys-aquarium-of-canada" target="_blank" rel="noopener">Ripley’s tickets</a>
+          <a class="btn btn-soft" href="https://mildafrolounge.com/" target="_blank" rel="noopener">Mild Afro</a>
+        </div>
+      </div>
+
+      <h2 class="section-title">Packing</h2>
+      <ul class="check-list" id="packing"></ul>
+    </section>
+
+    <p class="footer-note">Nate &amp; Nini Bear · Aug 2026 · progress saves on this phone</p>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "nate-nini-toronto-2026-v1";
+
+    const places = {
+      yow: {
+        name: "Enterprise YOW — car pickup",
+        addr: "1003 Airport Parkway Pvt, Ottawa",
+        do: "Pick up economy car ~7:00 AM. Full G licence + credit card. Photo any scratches. Confirm Sunday ~7 PM return.",
+        maps: "https://maps.google.com/?q=Enterprise+Rent-A-Car+Ottawa+Airport",
+        locked: true
+      },
+      hotel: {
+        name: "Best Western Plus Travel Hotel Toronto Airport",
+        addr: "5503 Eglinton Ave W, Etobicoke",
+        do: "Check in ~12:30 PM. Park the car here for the weekend (free). Free breakfast Sat & Sun.",
+        maps: "https://maps.google.com/?q=Best+Western+Plus+Travel+Hotel+Toronto+Airport+5503+Eglinton",
+        locked: true
+      },
+      harbourfront: {
+        name: "Harbourfront",
+        addr: "Queens Quay W, Toronto",
+        do: "Sit by the lake. Skyline photos. Low walking — benches and water views.",
+        maps: "https://maps.google.com/?q=Harbourfront+Centre+Toronto"
+      },
+      distillery: {
+        name: "Distillery District",
+        addr: "Parliament St / Distillery Lane, Toronto",
+        do: "Cobblestone streets, red-brick buildings, photos. Good ambience for Nini. Walk 30–45 min, then sit if you want.",
+        maps: "https://maps.google.com/?q=Distillery+Historic+District+Toronto"
+      },
+      gooderham: {
+        name: "Gooderham Building (flatiron)",
+        addr: "49 Wellington St E, Toronto",
+        do: "Quick photo of Toronto’s famous narrow brick building. 5–10 min stop near Distillery.",
+        maps: "https://maps.google.com/?q=Gooderham+Building+Toronto"
+      },
+      funkeys: {
+        name: "Funkey’s Delicacies",
+        addr: "4205 Keele St Unit 3, North York",
+        do: "Your one Nigerian dinner. Order Abula (amala + gbegiri + ewedu) or egusi with swallow, plus jollof or suya. Drive or Uber from hotel (~25 min).",
+        maps: "https://maps.google.com/?q=Funkey's+Delicacies+4205+Keele+St+Toronto",
+        phone: "6476293485"
+      },
+      humber: {
+        name: "Humber Bay Park East",
+        addr: "Humber Bay Park Rd E, Etobicoke",
+        do: "After Funkey’s: park, short walk, Toronto skyline + CN Tower across the lake. Sit on a bench. Light — not a club. Home by ~10:30 PM.",
+        maps: "https://maps.google.com/?q=Humber+Bay+Park+East+Toronto"
+      },
+      eglintonSnack: {
+        name: "Little Jamaica dessert stop",
+        addr: "Eglinton Ave W near Oakwood",
+        do: "Quick patty or dessert on the way toward the hotel. Casual, light, no dancing.",
+        maps: "https://maps.google.com/?q=1561+Eglinton+Ave+W+Toronto"
+      },
+      casino: {
+        name: "Great Canadian Casino (Woodbine)",
+        addr: "1133 Queens Plate Dr, Etobicoke",
+        do: "Indoor stroll / slots if you want lights and play. Not a dance club. Parking ~$30 Fri–Sun.",
+        maps: "https://maps.google.com/?q=Great+Canadian+Casino+Resort+Toronto"
+      },
+      hotelStroll: {
+        name: "Hotel area stroll",
+        addr: "Around 5503 Eglinton Ave W",
+        do: "Park at the hotel. Walk nearby for a snack or coffee. Lightest option after dinner.",
+        maps: "https://maps.google.com/?q=5503+Eglinton+Ave+W+Toronto"
+      },
+      ripleys: {
+        name: "Ripley’s Aquarium",
+        addr: "288 Bremner Blvd, Toronto",
+        do: "Timed entry ~10:30 or 11:00 AM. Dangerous Lagoon tunnel + Planet Jellies. Plan ~2 hours. Tickets online.",
+        maps: "https://maps.google.com/?q=Ripley's+Aquarium+of+Canada",
+        locked: true
+      },
+      recroom: {
+        name: "The Rec Room",
+        addr: "255 Bremner Blvd, Toronto",
+        do: "Play together: arcade, Mario Kart, pool, ping pong. Cap credits ~$25–35. Right next to the aquarium.",
+        maps: "https://maps.google.com/?q=The+Rec+Room+Toronto+Bremner"
+      },
+      greta: {
+        name: "Greta Bar",
+        addr: "590 King St W, Toronto",
+        do: "50+ arcade games + cocktails. 19+. More nightlife than Rec Room — still not Mild Afro.",
+        maps: "https://maps.google.com/?q=Greta+Bar+Toronto+King+St"
+      },
+      playdium: {
+        name: "Playdium Fairview",
+        addr: "Fairview Mall area, North York",
+        do: "Bowling + big arcade. Closer to the hotel side of town if you skip downtown games.",
+        maps: "https://maps.google.com/?q=Playdium+Fairview+Toronto"
+      },
+      market: {
+        name: "St Lawrence Market",
+        addr: "93–95 Front St E, Toronto",
+        do: "Saturday lunch. Carousel peameal bacon sandwich, browse stalls ~45 min. Famous Toronto food hall.",
+        maps: "https://maps.google.com/?q=St+Lawrence+Market+Toronto"
+      },
+      packedLunch: {
+        name: "Packed lunch / snacks",
+        addr: "Wherever you are",
+        do: "Eat snacks you brought. Saves money and time. Skip the market if you’re tired.",
+        maps: "https://maps.google.com/?q=Ripley's+Aquarium+of+Canada"
+      },
+      entertainmentKitchen: {
+        name: "Entertainment Kitchen (jerk)",
+        addr: "1561 Eglinton Ave W",
+        do: "Cheap Caribbean plates near the hotel corridor. Cash often. Big portions.",
+        maps: "https://maps.google.com/?q=The+Entertainment+Kitchen+1561+Eglinton"
+      },
+      yorkville: {
+        name: "Yorkville stroll",
+        addr: "Bloor / Yorkville Ave",
+        do: "Pretty streets, boutiques, café patios. Nice buildings — good for Nini’s sightseeing taste.",
+        maps: "https://maps.google.com/?q=Yorkville+Toronto"
+      },
+      kensington: {
+        name: "Kensington Market",
+        addr: "Augusta Ave area",
+        do: "Colourful streets and murals. More walking than Harbourfront.",
+        maps: "https://maps.google.com/?q=Kensington+Market+Toronto"
+      },
+      nathan: {
+        name: "Nathan Phillips Square",
+        addr: "100 Queen St W",
+        do: "TORONTO sign + City Hall curves. Quick photo stop.",
+        maps: "https://maps.google.com/?q=Nathan+Phillips+Square+Toronto"
+      },
+      cntower: {
+        name: "CN Tower (outside only)",
+        addr: "290 Bremner Blvd",
+        do: "Free skyline photos from below. Skip the deck (~$44/person) to stay on budget.",
+        maps: "https://maps.google.com/?q=CN+Tower+Toronto"
+      },
+      harbourSunset: {
+        name: "Harbourfront sunset",
+        addr: "Queens Quay W",
+        do: "Sit by the water ~6–7 PM. Skyline + sunset. Minimal walking. Nap later if needed before the club.",
+        maps: "https://maps.google.com/?q=Harbourfront+Centre+Toronto"
+      },
+      mildafro: {
+        name: "Mild Afro Lounge",
+        addr: "1116 Dundas St W",
+        do: "Afrobeats night. Arrive ~11:30 PM–12 AM. Smart casual. Drinks + dance. Uber home ~3 AM.",
+        maps: "https://maps.google.com/?q=Mild+Afro+Lounge+1116+Dundas+St+W",
+        phone: "6473688355",
+        locked: true
+      },
+      barcode: {
+        name: "Barcode Saturdays @ Amore",
+        addr: "559 College St",
+        do: "Mixed Afrobeats / Dancehall / Soca. Guestlist option. Only if Mild Afro doesn’t work.",
+        maps: "https://maps.google.com/?q=Amore+559+College+Street+Toronto"
+      },
+      allen: {
+        name: "Allen Gardens Conservatory",
+        addr: "19 Horticultural Ave",
+        do: "Free indoor greenhouse — flowers and quiet ambience. ~30–45 min after checkout, then drive home.",
+        maps: "https://maps.google.com/?q=Allan+Gardens+Conservatory+Toronto"
+      },
+      bluffs: {
+        name: "Scarborough Bluffs",
+        addr: "Scarborough Bluffs Park",
+        do: "Cliff + lake views. Extra driving before the long trip home.",
+        maps: "https://maps.google.com/?q=Scarborough+Bluffs+Park"
+      },
+      straightHome: {
+        name: "Straight home (no Sunday stop)",
+        addr: "Highway 401 East",
+        do: "Skip Toronto stops. Optional Kingston washroom/coffee. Fastest way back.",
+        maps: "https://maps.google.com/?q=Highway+401+east+from+Toronto"
+      },
+      yowReturn: {
+        name: "Enterprise YOW — car return",
+        addr: "Ottawa Airport",
+        do: "Fill gas near YOW first. Return ~7:00 PM. After-hours drop box if needed.",
+        maps: "https://maps.google.com/?q=Enterprise+Rent-A-Car+Ottawa+Airport",
+        locked: true
+      },
+      ayoka: {
+        name: "Ayoka-Ade African Delicacies",
+        addr: "2865 Keele St, North York",
+        do: "Homestyle Nigerian backup near Funkey’s. Amala, egusi, jollof.",
+        maps: "https://maps.google.com/?q=Ayoka-Ade+African+Delicacies+2865+Keele"
+      },
+      greelz: {
+        name: "Greelz on Bloor",
+        addr: "2100 Bloor St W",
+        do: "Nigerian street-food vibe — Agege burger, suya bowl. Quicker / lighter than Funkey’s.",
+        maps: "https://maps.google.com/?q=Greelz+2100+Bloor+St+W+Toronto"
+      }
+    };
+
+    /** Day slots: default place + optional swap ids */
+    const days = {
+      fri: [
+        { id: "f1", time: "6:15 AM", default: "yow", swaps: [] },
+        { id: "f2", time: "12:30 PM", default: "hotel", swaps: [] },
+        { id: "f3", time: "2:30 PM", default: "harbourfront", swaps: ["nathan", "cntower"] },
+        { id: "f4", time: "4:00 PM", default: "distillery", swaps: ["gooderham", "kensington", "yorkville"] },
+        { id: "f5", time: "7:00 PM", default: "funkeys", swaps: ["ayoka", "greelz"] },
+        { id: "f6", time: "9:30 PM", default: "humber", swaps: ["eglintonSnack", "casino", "hotelStroll"] }
+      ],
+      sat: [
+        { id: "s1", time: "10:30 AM", default: "ripleys", swaps: ["cntower"] },
+        { id: "s2", time: "12:30 PM", default: "recroom", swaps: ["greta", "playdium"] },
+        { id: "s3", time: "1:30 PM", default: "market", swaps: ["packedLunch", "entertainmentKitchen", "greelz"] },
+        { id: "s4", time: "3:00 PM", default: "yorkville", swaps: ["kensington", "distillery", "nathan", "harbourSunset"] },
+        { id: "s5", time: "6:00 PM", default: "harbourSunset", swaps: ["yorkville", "hotelStroll"] },
+        { id: "s6", time: "11:30 PM", default: "mildafro", swaps: ["barcode"] }
+      ],
+      sun: [
+        { id: "u1", time: "11:00 AM", default: "hotel", swaps: [] },
+        { id: "u2", time: "11:30 AM", default: "allen", swaps: ["bluffs", "straightHome", "market"] },
+        { id: "u3", time: "1:30 PM", default: "straightHome", swaps: [] },
+        { id: "u4", time: "7:00 PM", default: "yowReturn", swaps: [] }
+      ]
+    };
+
+    const defaultBudget = [
+      { id: "hotel", label: "Hotel (booked)", amount: 325, locked: true },
+      { id: "car", label: "Car rental (booked)", amount: 194.42, locked: true },
+      { id: "gas", label: "Gas (round trip)", amount: 60, locked: false },
+      { id: "ripleys", label: "Ripley’s ×2 (tax in)", amount: 95, locked: false },
+      { id: "funkeys", label: "Funkey’s dinner", amount: 80, locked: false },
+      { id: "food", label: "Other food / snacks", amount: 45, locked: false },
+      { id: "ttc", label: "TTC day passes", amount: 27, locked: false },
+      { id: "games", label: "Rec Room / games", amount: 35, locked: false },
+      { id: "uber", label: "Uber (club to + from)", amount: 90, locked: false },
+      { id: "drinks", label: "Club drinks", amount: 35, locked: false },
+      { id: "sun", label: "Sunday stop / parking", amount: 15, locked: false },
+      { id: "buffer", label: "Buffer / tips", amount: 25, locked: false }
+    ];
+
+    const checklistItems = [
+      { id: "c1", text: "Ripley’s timed tickets (Sat 10:30 or 11:00 AM)" },
+      { id: "c2", text: "Confirm car: Fri 7 AM pickup, Sun 7 PM return" },
+      { id: "c3", text: "Call Funkey’s if you want a table (647-629-3485)" },
+      { id: "c4", text: "Call Mild Afro for cover / dress code (647-368-8355)" },
+      { id: "c5", text: "Call auto insurer about rental coverage" },
+      { id: "c6", text: "Screenshot hotel + car confirmations" }
+    ];
+
+    const packingItems = [
+      { id: "p1", text: "Physical IDs (both) — clubs are 19+" },
+      { id: "p2", text: "Credit card for car pickup (renter’s name)" },
+      { id: "p3", text: "Phone mount + dual USB charger" },
+      { id: "p4", text: "Snacks + water bottles for the drive" },
+      { id: "p5", text: "Comfy walking shoes" },
+      { id: "p6", text: "Light jacket (aquarium + night)" },
+      { id: "p7", text: "Saturday club outfit (smart casual)" },
+      { id: "p8", text: "Chargers / power bank" }
+    ];
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = Object.assign({
+      swaps: {},
+      done: {},
+      notes: {},
+      checks: {},
+      pack: {},
+      budget: {},
+      panel: "fri",
+      installDismissed: false
+    }, loadState());
+
+    function activePlaceId(slot) {
+      const chosen = state.swaps[slot.id];
+      if (chosen && (chosen === slot.default || slot.swaps.includes(chosen))) return chosen;
+      return slot.default;
+    }
+
+    function mapsUrl(place) {
+      return place.maps;
+    }
+
+    function renderSlot(slot) {
+      const placeId = activePlaceId(slot);
+      const place = places[placeId];
+      const done = !!state.done[slot.id];
+      const note = state.notes[slot.id] || "";
+      const options = [slot.default, ...slot.swaps].filter((v, i, a) => a.indexOf(v) === i);
+
+      let swapHtml = "";
+      if (options.length > 1) {
+        swapHtml = `
+          <div class="swap-row">
+            <label for="swap-${slot.id}">Swap this stop</label>
+            <select class="swap" id="swap-${slot.id}" data-slot="${slot.id}">
+              ${options.map(id => `<option value="${id}" ${id === placeId ? "selected" : ""}>${places[id].name}${id === slot.default ? " (plan)" : ""}</option>`).join("")}
+            </select>
+          </div>`;
+      }
+
+      return `
+        <article class="card ${done ? "done" : ""}" data-slot="${slot.id}">
+          <div class="card-top">
+            <div class="time-pill">${slot.time}</div>
+            <div class="card-body">
+              <h3>${place.name}${place.locked ? '<span class="locked-tag">must</span>' : ""}</h3>
+              <p class="addr">${place.addr}</p>
+              <p class="do">${place.do}</p>
+              ${swapHtml}
+              <div class="actions">
+                <a class="btn btn-primary" href="${mapsUrl(place)}" target="_blank" rel="noopener">Open in Google Maps</a>
+                <button type="button" class="btn ${done ? "btn-ghost" : "btn-ok"} toggle-done" data-slot="${slot.id}">${done ? "Undo" : "Done"}</button>
+                ${place.phone ? `<a class="btn btn-soft" href="tel:${place.phone}">Call</a>` : ""}
+              </div>
+              <textarea class="notes" data-note="${slot.id}" placeholder="Notes for us…">${note.replace(/</g, "&lt;")}</textarea>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function renderDay(key, title) {
+      const el = document.getElementById("panel-" + key);
+      el.innerHTML = `<h2 class="section-title">${title}</h2>` + days[key].map(renderSlot).join("");
+    }
+
+    function renderChecks(listId, items, stateKey) {
+      const el = document.getElementById(listId);
+      el.innerHTML = items.map(item => {
+        const on = !!state[stateKey][item.id];
+        return `<li class="${on ? "done" : ""}">
+          <input type="checkbox" id="${item.id}" data-key="${stateKey}" ${on ? "checked" : ""} />
+          <label for="${item.id}">${item.text}</label>
+        </li>`;
+      }).join("");
+    }
+
+    function budgetAmount(row) {
+      if (row.locked) return row.amount;
+      const v = state.budget[row.id];
+      return typeof v === "number" ? v : row.amount;
+    }
+
+    function renderBudget() {
+      const body = document.getElementById("budgetBody");
+      body.innerHTML = defaultBudget.map(row => {
+        const amt = budgetAmount(row);
+        return `<tr>
+          <td>${row.label}</td>
+          <td>${row.locked
+            ? `<strong>$${amt.toFixed(2)}</strong>`
+            : `<input type="number" min="0" step="0.01" data-budget="${row.id}" value="${amt}" />`}</td>
+          <td style="color:var(--muted);font-size:0.75rem;">${row.locked ? "locked" : "edit"}</td>
+        </tr>`;
+      }).join("");
+
+      const total = defaultBudget.reduce((s, r) => s + budgetAmount(r), 0);
+      const delta = 800 - total;
+      document.getElementById("budgetTotal").textContent = `$${total.toFixed(2)}`;
+      const deltaEl = document.getElementById("budgetDelta");
+      if (delta >= 0) {
+        deltaEl.className = "under";
+        deltaEl.textContent = `$${delta.toFixed(2)} under the $800 cap`;
+      } else {
+        deltaEl.className = "over";
+        deltaEl.textContent = `$${Math.abs(delta).toFixed(2)} over the $800 cap — trim games, Uber, or drinks`;
+      }
+    }
+
+    function parseTimeOnDay(dayKey, timeStr) {
+      // Rough "now" helper using local clock; trip days mapped to Aug 7/8/9 2026
+      const dayMap = { fri: "2026-08-07", sat: "2026-08-08", sun: "2026-08-09" };
+      const m = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (!m) return null;
+      let h = parseInt(m[1], 10);
+      const min = parseInt(m[2], 10);
+      const ap = m[3].toUpperCase();
+      if (ap === "PM" && h !== 12) h += 12;
+      if (ap === "AM" && h === 12) h = 0;
+      return new Date(`${dayMap[dayKey]}T${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}:00`);
+    }
+
+    function updateWhatsNext() {
+      const now = new Date();
+      const order = ["fri", "sat", "sun"];
+      let next = null;
+      for (const day of order) {
+        for (const slot of days[day]) {
+          if (state.done[slot.id]) continue;
+          const t = parseTimeOnDay(day, slot.time);
+          if (!t) continue;
+          if (t >= new Date(now.getTime() - 45 * 60000)) {
+            next = { day, slot, t };
+            break;
+          }
+        }
+        if (next) break;
+      }
+      if (!next) {
+        // fallback: first incomplete
+        for (const day of order) {
+          for (const slot of days[day]) {
+            if (!state.done[slot.id]) {
+              next = { day, slot, t: parseTimeOnDay(day, slot.time) };
+              break;
+            }
+          }
+          if (next) break;
+        }
+      }
+      const title = document.getElementById("nextTitle");
+      const meta = document.getElementById("nextMeta");
+      if (!next) {
+        title.textContent = "You’re clear — enjoy the drive home";
+        meta.textContent = "All stops marked done";
+        return;
+      }
+      const place = places[activePlaceId(next.slot)];
+      const dayLabel = { fri: "Friday", sat: "Saturday", sun: "Sunday" }[next.day];
+      title.textContent = place.name;
+      meta.textContent = `${dayLabel} · ${next.slot.time} · ${place.addr}`;
+    }
+
+    function renderAll() {
+      renderDay("fri", "Friday · Aug 7");
+      renderDay("sat", "Saturday · Aug 8");
+      renderDay("sun", "Sunday · Aug 9");
+      renderChecks("checklist", checklistItems, "checks");
+      renderChecks("packing", packingItems, "pack");
+      renderBudget();
+      updateWhatsNext();
+      document.querySelectorAll(".tab").forEach(t => {
+        t.setAttribute("aria-selected", t.dataset.panel === state.panel ? "true" : "false");
+      });
+      document.querySelectorAll(".panel").forEach(p => {
+        p.classList.toggle("active", p.id === "panel-" + state.panel);
+      });
+    }
+
+    document.querySelector(".tabs").addEventListener("click", (e) => {
+      const btn = e.target.closest(".tab");
+      if (!btn) return;
+      state.panel = btn.dataset.panel;
+      saveState(state);
+      renderAll();
+    });
+
+    document.body.addEventListener("change", (e) => {
+      if (e.target.matches("select.swap")) {
+        state.swaps[e.target.dataset.slot] = e.target.value;
+        saveState(state);
+        renderAll();
+      }
+      if (e.target.matches('input[type="checkbox"][data-key]')) {
+        const key = e.target.dataset.key;
+        state[key][e.target.id] = e.target.checked;
+        saveState(state);
+        renderAll();
+      }
+      if (e.target.matches("input[data-budget]")) {
+        state.budget[e.target.dataset.budget] = parseFloat(e.target.value) || 0;
+        saveState(state);
+        renderBudget();
+      }
+    });
+
+    document.body.addEventListener("click", (e) => {
+      const btn = e.target.closest(".toggle-done");
+      if (!btn) return;
+      const id = btn.dataset.slot;
+      state.done[id] = !state.done[id];
+      saveState(state);
+      renderAll();
+    });
+
+    document.body.addEventListener("input", (e) => {
+      if (e.target.matches("textarea.notes")) {
+        state.notes[e.target.dataset.note] = e.target.value;
+        saveState(state);
+        // don't full re-render (keeps focus)
+        updateWhatsNext();
+      }
+    });
+
+    document.getElementById("resetBudget").addEventListener("click", () => {
+      state.budget = {};
+      saveState(state);
+      renderBudget();
+    });
+
+    // PWA install
+    let deferredPrompt = null;
+    const banner = document.getElementById("installBanner");
+    const installBtn = document.getElementById("installBtn");
+    if (!state.installDismissed) banner.classList.add("show");
+    document.getElementById("dismissInstall").addEventListener("click", () => {
+      state.installDismissed = true;
+      saveState(state);
+      banner.classList.remove("show");
+    });
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.hidden = false;
+      banner.classList.add("show");
+    });
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.hidden = true;
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    renderAll();
+    setInterval(updateWhatsNext, 60000);
+  </script>
+</body>
+</html>
