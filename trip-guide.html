@@ -593,35 +593,55 @@
     .day-head .section-title { margin: 0; flex: 1; }
     .day-head .btn { flex: 0 0 auto; font-size: 0.75rem; padding: 0.5rem 0.7rem; }
     .card.dragging {
-      opacity: 0.92;
+      opacity: 0.98;
       border-color: var(--gold);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.45);
-      z-index: 5;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+      z-index: 100;
+      animation: none;
+      transition: none;
+      margin-left: 2.35rem;
+      pointer-events: none;
     }
-    .card-top { position: relative; }
+    .card-top {
+      position: relative;
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+    }
     .drag-handle {
       flex: 0 0 auto;
-      width: 2.2rem;
-      align-self: stretch;
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-left: auto;
       border: 1px solid var(--line);
       background: var(--bg-deep);
       color: var(--gold);
       border-radius: 12px;
       cursor: grab;
-      font: inherit;
-      font-size: 1rem;
-      font-weight: 800;
-      letter-spacing: -0.05em;
-      line-height: 1;
-      padding: 0.35rem 0;
+      display: grid;
+      place-items: center;
+      padding: 0;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
-    .drag-handle:active { cursor: grabbing; background: rgba(212,168,75,0.18); }
+    .drag-handle svg { width: 14px; height: 14px; pointer-events: none; }
+    .drag-handle:active { cursor: grabbing; background: rgba(212,168,75,0.2); }
+    .drag-placeholder {
+      margin: 0 0 0.65rem 2.35rem;
+      border: 1px dashed rgba(212,168,75,0.55);
+      border-radius: var(--radius);
+      background: rgba(212,168,75,0.08);
+      box-sizing: border-box;
+    }
+    .timeline.dragging-list {
+      touch-action: none;
+      user-select: none;
+    }
     .drag-hint {
-      margin: 0 0 0.75rem;
-      font-size: 0.8rem;
+      margin: 0 0 0.55rem;
+      font-size: 0.75rem;
       color: var(--muted);
     }
 
@@ -1732,7 +1752,6 @@
         <article class="card ${done ? "done" : ""}" data-slot="${slot.id}" data-day="${dayKey}">
           <span class="node" aria-hidden="true"></span>
           <div class="card-top">
-            <button type="button" class="drag-handle" aria-label="Drag to reorder" title="Drag to reorder">⠿</button>
             <div class="time-pill">${slot.time}</div>
             <div class="card-body">
               <h3>${place.name}<span class="status-pill status-${st}" data-status-slot="${slot.id}">${statusLabel(st)}</span>${place.locked ? '<span class="locked-tag">must</span>' : ""}${place.ticketUrl ? '<span class="ticket-tag">ticket</span>' : ""}</h3>
@@ -1753,6 +1772,9 @@
               ${state.doneMeta && state.doneMeta[slot.id] ? `<p class="addr">Marked done by <strong>${escapeHtml(state.doneMeta[slot.id].who)}</strong> · ${escapeHtml(fmtTime(state.doneMeta[slot.id].at))}</p>` : ""}
               <textarea class="notes" data-note="${slot.id}" placeholder="Notes for us…">${escapeHtml(note)}</textarea>
             </div>
+            <button type="button" class="drag-handle" aria-label="Drag to reorder" title="Hold and drag">
+              <svg viewBox="0 0 12 16" aria-hidden="true"><circle cx="3" cy="3" r="1.4" fill="currentColor"/><circle cx="9" cy="3" r="1.4" fill="currentColor"/><circle cx="3" cy="8" r="1.4" fill="currentColor"/><circle cx="9" cy="8" r="1.4" fill="currentColor"/><circle cx="3" cy="13" r="1.4" fill="currentColor"/><circle cx="9" cy="13" r="1.4" fill="currentColor"/></svg>
+            </button>
           </div>
         </article>`;
     }
@@ -1765,7 +1787,7 @@
           <h2 class="section-title">${title}</h2>
           <button type="button" class="btn btn-ghost reset-day" data-day="${key}">Reset ${dayName} order</button>
         </div>
-        <p class="drag-hint">Drag ⠿ to reorder · Next follows your list</p>
+        <p class="drag-hint">Hold the ≡ grip to drag · or use ↑ ↓</p>
         <div class="timeline" data-day="${key}">` +
         orderedSlots(key).map(s => renderSlot(s, key)).join("") +
         `</div>`;
@@ -1776,58 +1798,111 @@
       const timeline = document.querySelector("#panel-" + dayKey + " .timeline");
       if (!timeline || timeline.dataset.dragBound === "1") return;
       timeline.dataset.dragBound = "1";
+
       let dragEl = null;
-      let activeHandle = null;
+      let handle = null;
+      let placeholder = null;
+      let startY = 0;
+      let offsetY = 0;
+      let startTop = 0;
+      let startLeft = 0;
+      let startWidth = 0;
+
+      const clearInline = (el) => {
+        el.style.position = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.width = "";
+        el.style.zIndex = "";
+        el.style.transform = "";
+        el.style.marginBottom = "";
+      };
 
       const onMove = (e) => {
         if (!dragEl) return;
+        e.preventDefault();
         const y = e.clientY;
-        const edge = 80;
-        if (y < edge) window.scrollBy(0, -18);
-        else if (y > window.innerHeight - edge) window.scrollBy(0, 18);
+        dragEl.style.top = (startTop + (y - startY)) + "px";
+
+        const edge = 72;
+        if (y < edge) window.scrollBy(0, -14);
+        else if (y > window.innerHeight - edge) window.scrollBy(0, 14);
+
+        const mid = y;
         const cards = [...timeline.querySelectorAll(".card")].filter(c => c !== dragEl);
-        let placed = false;
+        let before = null;
         for (const c of cards) {
           const r = c.getBoundingClientRect();
-          if (y < r.top + r.height / 2) {
-            timeline.insertBefore(dragEl, c);
-            placed = true;
+          if (mid < r.top + r.height / 2) {
+            before = c;
             break;
           }
         }
-        if (!placed) timeline.appendChild(dragEl);
+        if (before) timeline.insertBefore(placeholder, before);
+        else timeline.appendChild(placeholder);
       };
 
       const onEnd = (e) => {
         if (!dragEl) return;
-        dragEl.classList.remove("dragging");
-        if (activeHandle) {
-          try { activeHandle.releasePointerCapture(e.pointerId); } catch (_) {}
-          activeHandle.removeEventListener("pointermove", onMove);
-          activeHandle.removeEventListener("pointerup", onEnd);
-          activeHandle.removeEventListener("pointercancel", onEnd);
+        try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+        handle.removeEventListener("pointermove", onMove);
+        handle.removeEventListener("pointerup", onEnd);
+        handle.removeEventListener("pointercancel", onEnd);
+
+        if (placeholder && placeholder.parentNode) {
+          placeholder.parentNode.insertBefore(dragEl, placeholder);
+          placeholder.remove();
         }
+        placeholder = null;
+        clearInline(dragEl);
+        dragEl.classList.remove("dragging");
+        timeline.classList.remove("dragging-list");
+
         const ids = [...timeline.querySelectorAll(".card")].map(c => c.dataset.slot);
         saveDayOrder(dayKey, ids);
+
         dragEl = null;
-        activeHandle = null;
+        handle = null;
         dragActive = false;
       };
 
       timeline.addEventListener("pointerdown", (e) => {
-        const handle = e.target.closest(".drag-handle");
-        if (!handle) return;
-        dragEl = handle.closest(".card");
-        if (!dragEl) return;
-        activeHandle = handle;
+        const h = e.target.closest(".drag-handle");
+        if (!h) return;
+        const card = h.closest(".card");
+        if (!card) return;
+        e.preventDefault();
+
+        dragEl = card;
+        handle = h;
         dragActive = true;
-        dragEl.classList.add("dragging");
-        handle.addEventListener("pointermove", onMove);
+
+        const rect = card.getBoundingClientRect();
+        startY = e.clientY;
+        startTop = rect.top;
+        startLeft = rect.left;
+        startWidth = rect.width;
+        offsetY = e.clientY - rect.top;
+
+        placeholder = document.createElement("div");
+        placeholder.className = "drag-placeholder";
+        placeholder.style.height = rect.height + "px";
+        card.parentNode.insertBefore(placeholder, card.nextSibling);
+
+        card.classList.add("dragging");
+        timeline.classList.add("dragging-list");
+        card.style.position = "fixed";
+        card.style.left = startLeft + "px";
+        card.style.top = startTop + "px";
+        card.style.width = startWidth + "px";
+        card.style.zIndex = "200";
+        card.style.marginBottom = "0";
+
+        handle.addEventListener("pointermove", onMove, { passive: false });
         handle.addEventListener("pointerup", onEnd);
         handle.addEventListener("pointercancel", onEnd);
         handle.setPointerCapture(e.pointerId);
-        e.preventDefault();
-      });
+      }, { passive: false });
     }
 
     function renderChecks(listId, items, stateKey) {
