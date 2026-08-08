@@ -539,6 +539,47 @@
       justify-content: center;
     }
     .picker-sheet.show { display: flex; }
+    .carry-preview-note {
+      margin: 0 0.35rem 0.65rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .carry-preview-list {
+      margin: 0 0.35rem 0.75rem;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.45rem;
+    }
+    .carry-preview-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      padding: 0.65rem 0.7rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--bg-deep);
+      font-size: 0.88rem;
+    }
+    .carry-preview-list .carry-tag {
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      border-radius: 999px;
+      padding: 0.15rem 0.45rem;
+      margin-top: 0.1rem;
+    }
+    .carry-preview-foot {
+      margin: 0 0.35rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
     .picker-panel {
       width: min(480px, 100%);
       max-height: 70vh;
@@ -1611,6 +1652,8 @@
         <p class="next-meta" id="nextMeta"></p>
       </div>
       <div class="sticky-now-actions">
+        <button type="button" class="btn btn-soft" id="undoCarryBtn" hidden>Undo carry</button>
+        <button type="button" class="btn btn-soft" id="previewNextDayBtn" hidden>Preview next day</button>
         <button type="button" class="btn btn-soft" id="replanBtn" hidden>Replan remaining</button>
         <a class="btn btn-go" id="nextGo" href="#" target="_blank" rel="noopener" hidden>Maps</a>
       </div>
@@ -1740,6 +1783,18 @@
         <h4 id="pickerTitle">Choose stop</h4>
         <div id="pickerOptions"></div>
         <button type="button" class="picker-cancel" id="pickerCancel">Cancel</button>
+      </div>
+    </div>
+
+    <div id="carryPreviewSheet" class="picker-sheet" hidden aria-hidden="true">
+      <div class="picker-panel carry-preview-panel" role="dialog" aria-modal="true" aria-labelledby="carryPreviewTitle" tabindex="-1">
+        <div class="place-sheet-head">
+          <h4 id="carryPreviewTitle">Next-day preview</h4>
+          <button type="button" class="picker-cancel place-close" id="carryPreviewClose">Close</button>
+        </div>
+        <p class="carry-preview-note" id="carryPreviewNote"></p>
+        <ol class="carry-preview-list" id="carryPreviewList"></ol>
+        <p class="carry-preview-foot">Preview only — your plan stays the same until midnight Toronto time or you mark stops done.</p>
       </div>
     </div>
 
@@ -2044,6 +2099,225 @@
       ]
     };
 
+    const TRIP_DAY_DATES = { fri: "2026-08-07", sat: "2026-08-08", sun: "2026-08-09" };
+    const NEXT_TRIP_DAY = { fri: "sat", sat: "sun" };
+    const TORONTO_TZ = "America/Toronto";
+
+    function slotHomeDay(slotId) {
+      for (const day of ["fri", "sat", "sun"]) {
+        if ((days[day] || []).some(s => s.id === slotId)) return day;
+      }
+      return null;
+    }
+
+    function slotById(slotId) {
+      for (const day of ["fri", "sat", "sun"]) {
+        const slot = (days[day] || []).find(s => s.id === slotId);
+        if (slot) return slot;
+      }
+      return null;
+    }
+
+    function carriedToDay(slotId) {
+      return state.carriedTo && state.carriedTo[slotId] ? state.carriedTo[slotId] : null;
+    }
+
+    function isSlotOnDay(dayKey, slot) {
+      const dest = carriedToDay(slot.id);
+      if (dest) return dest === dayKey;
+      return slotHomeDay(slot.id) === dayKey;
+    }
+
+    function daySlotPool(dayKey) {
+      const pool = [];
+      for (const day of ["fri", "sat", "sun"]) {
+        for (const slot of days[day] || []) {
+          if (isSlotOnDay(dayKey, slot)) pool.push(slot);
+        }
+      }
+      return pool;
+    }
+
+    function torontoDateKey(date) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: TORONTO_TZ,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(date || new Date());
+      const map = {};
+      parts.forEach(p => { if (p.type !== "literal") map[p.type] = p.value; });
+      return map.year + "-" + map.month + "-" + map.day;
+    }
+
+    function carryMarkerKey(fromDay) {
+      return fromDay + "->" + (NEXT_TRIP_DAY[fromDay] || "");
+    }
+
+    function isLockedSlot(slot) {
+      if (!slot) return false;
+      const place = places[activePlaceId(slot)];
+      return !!(place && place.locked);
+    }
+
+    function incompleteOnDay(dayKey) {
+      return daySlotPool(dayKey).filter(slot => !state.done[slot.id]);
+    }
+
+    function insertionCost(orderIds, insertIndex, carriedId, dayKey) {
+      const carriedSlot = slotById(carriedId);
+      const carriedPlace = places[activePlaceId(carriedSlot)];
+      if (!carriedSlot || !carriedPlace) return 9999;
+      const prevId = insertIndex > 0 ? orderIds[insertIndex - 1] : null;
+      const nextId = insertIndex < orderIds.length ? orderIds[insertIndex] : null;
+      let cost = 0;
+      if (prevId) {
+        const prevSlot = slotById(prevId);
+        const prevPlace = places[activePlaceId(prevSlot)];
+        const minutes = transportMinutes(prevPlace, carriedPlace, selectedTransport(dayKey, carriedSlot, carriedPlace));
+        cost += minutes == null ? 30 : minutes;
+      }
+      if (nextId) {
+        const nextSlot = slotById(nextId);
+        const nextPlace = places[activePlaceId(nextSlot)];
+        const minutes = transportMinutes(carriedPlace, nextPlace, selectedTransport(dayKey, nextSlot, nextPlace));
+        cost += minutes == null ? 30 : minutes;
+      }
+      return cost;
+    }
+
+    function smartMergeOrder(toDay, carriedIds) {
+      const existing = orderedSlots(toDay).map(s => s.id).filter(id => !carriedIds.includes(id));
+      const locks = existing.filter(id => isLockedSlot(slotById(id)));
+      let flexPool = existing.filter(id => !locks.includes(id));
+      for (const carriedId of carriedIds) {
+        let bestIndex = flexPool.length;
+        let bestCost = Infinity;
+        for (let i = 0; i <= flexPool.length; i++) {
+          const cost = insertionCost(flexPool, i, carriedId, toDay);
+          if (cost < bestCost) {
+            bestCost = cost;
+            bestIndex = i;
+          }
+        }
+        flexPool.splice(bestIndex, 0, carriedId);
+      }
+      const out = [];
+      let flexIndex = 0;
+      for (const id of existing) {
+        if (locks.includes(id)) out.push(id);
+        else out.push(flexPool[flexIndex++]);
+      }
+      while (flexIndex < flexPool.length) out.push(flexPool[flexIndex++]);
+      return out;
+    }
+
+    function buildCarryPreview(fromDay) {
+      const toDay = NEXT_TRIP_DAY[fromDay];
+      if (!toDay) return null;
+      const carriedIds = incompleteOnDay(fromDay).map(slot => slot.id);
+      if (!carriedIds.length) return null;
+      const order = smartMergeOrder(toDay, carriedIds);
+      return {
+        fromDay,
+        toDay,
+        carriedIds,
+        order,
+        slots: order.map(id => slotById(id)).filter(Boolean)
+      };
+    }
+
+    function canUndoCarry() {
+      if (!state.carryUndo || !Array.isArray(state.carryUndo.carriedIds)) return false;
+      return state.carryUndo.carriedIds.some(id => !state.done[id]);
+    }
+
+    function clearCarryUndoIfDone() {
+      if (!state.carryUndo || !Array.isArray(state.carryUndo.carriedIds)) return;
+      if (!state.carryUndo.carriedIds.some(id => !state.done[id])) state.carryUndo = null;
+    }
+
+    function commitCarry(fromDay, options) {
+      const opts = options || {};
+      const toDay = NEXT_TRIP_DAY[fromDay];
+      if (!toDay) return false;
+      const carriedIds = incompleteOnDay(fromDay).map(slot => slot.id);
+      if (!carriedIds.length) return false;
+
+      const snapshot = {
+        fromDay,
+        toDay,
+        carriedIds: carriedIds.slice(),
+        order: JSON.parse(JSON.stringify(state.order || { fri: [], sat: [], sun: [] })),
+        planTimes: Object.assign({}, state.planTimes || {}),
+        carriedTo: Object.assign({}, state.carriedTo || {}),
+        carryMarkers: Object.assign({}, state.carryMarkers || {})
+      };
+
+      if (!state.order) state.order = { fri: [], sat: [], sun: [] };
+      if (!state.carriedTo) state.carriedTo = {};
+      carriedIds.forEach(id => {
+        state.carriedTo[id] = toDay;
+        clockTouch("carry", id);
+      });
+
+      state.order[toDay] = smartMergeOrder(toDay, carriedIds);
+      clockTouch("order", toDay);
+      state.order[fromDay] = daySlotPool(fromDay).filter(slot => state.done[slot.id]).map(slot => slot.id);
+      clockTouch("order", fromDay);
+
+      if (!state.carryMarkers) state.carryMarkers = {};
+      const marker = carryMarkerKey(fromDay);
+      state.carryMarkers[marker] = torontoDateKey();
+      clockTouch("carry", marker);
+
+      state.carryUndo = snapshot;
+      clockTouch("carry", "__undo__");
+
+      const dayNames = { fri: "Friday", sat: "Saturday", sun: "Sunday" };
+      logActivity((opts.auto ? "midnight carry" : "carried stops") + " · " +
+        dayNames[fromDay] + " → " + dayNames[toDay] + " (" + carriedIds.length + ")");
+      queuePush();
+      renderAll();
+      renderActivity();
+      return true;
+    }
+
+    function carryIsDue(fromDay) {
+      const toDay = NEXT_TRIP_DAY[fromDay];
+      if (!toDay) return false;
+      if (torontoDateKey() < TRIP_DAY_DATES[toDay]) return false;
+      if (state.carryMarkers && state.carryMarkers[carryMarkerKey(fromDay)]) return false;
+      return incompleteOnDay(fromDay).length > 0;
+    }
+
+    function checkAndRunMidnightCarry() {
+      let changed = false;
+      for (const fromDay of ["fri", "sat"]) {
+        if (carryIsDue(fromDay) && commitCarry(fromDay, { auto: true })) changed = true;
+      }
+      return changed;
+    }
+
+    function undoLastCarry() {
+      const undo = state.carryUndo;
+      if (!undo || !canUndoCarry()) return;
+      state.order = JSON.parse(JSON.stringify(undo.order || { fri: [], sat: [], sun: [] }));
+      state.planTimes = Object.assign({}, undo.planTimes || {});
+      state.carriedTo = Object.assign({}, undo.carriedTo || {});
+      state.carryMarkers = Object.assign({}, undo.carryMarkers || {});
+      state.carryUndo = null;
+      clockTouch("carry", "__undo__");
+      for (const day of ["fri", "sat", "sun"]) clockTouch("order", day);
+      saveState(state);
+      logActivity("undid carry · " + ({ fri: "Friday", sat: "Saturday", sun: "Sunday" }[undo.fromDay] || undo.fromDay));
+      queuePush();
+      renderAll();
+      renderActivity();
+      const undoBtn = document.getElementById("undoCarryBtn");
+      if (undoBtn) undoBtn.hidden = true;
+    }
+
     const defaultBudget = [
       { id: "hotel", label: "Hotel (booked)", amount: 325, locked: true },
       { id: "car", label: "Car rental (booked)", amount: 194.42, locked: true },
@@ -2136,10 +2410,13 @@
         nearDismiss: {},
         order: { fri: [], sat: [], sun: [] },
         orderMeta: { fri: null, sat: null, sun: null },
-        clocks: { done: {}, swaps: {}, transport: {}, planTimes: {}, order: {}, notes: {}, checks: {}, pack: {}, budget: {}, nearDismiss: {} },
+        carriedTo: {},
+        carryMarkers: {},
+        carryUndo: null,
+        clocks: { done: {}, swaps: {}, transport: {}, planTimes: {}, order: {}, notes: {}, checks: {}, pack: {}, budget: {}, nearDismiss: {}, carry: {} },
         rev: 0
       }, source);
-      for (const key of ["swaps", "transport", "planTimes", "done", "doneMeta", "notes", "checks", "pack", "budget", "nearDismiss"]) {
+      for (const key of ["swaps", "transport", "planTimes", "done", "doneMeta", "notes", "checks", "pack", "budget", "nearDismiss", "carriedTo", "carryMarkers"]) {
         out[key] = plainMap(out[key]);
       }
       out.activity = Array.isArray(out.activity) ? out.activity.filter(Boolean).slice(0, 80) : [];
@@ -2149,9 +2426,10 @@
       }
       out.orderMeta = plainMap(out.orderMeta);
       out.clocks = plainMap(out.clocks);
-      for (const key of ["done", "swaps", "transport", "planTimes", "order", "notes", "checks", "pack", "budget", "nearDismiss"]) {
+      for (const key of ["done", "swaps", "transport", "planTimes", "order", "notes", "checks", "pack", "budget", "nearDismiss", "carry"]) {
         out.clocks[key] = plainMap(out.clocks[key]);
       }
+      out.carryUndo = out.carryUndo && typeof out.carryUndo === "object" ? out.carryUndo : null;
       if (!["fri", "sat", "sun", "tools"].includes(out.panel)) out.panel = "fri";
       out.rev = Number.isFinite(out.rev) && out.rev >= 0 ? out.rev : 0;
       return out;
@@ -2288,14 +2566,16 @@
       return JSON.stringify({
         rev: s.rev, swaps: s.swaps, transport: s.transport, planTimes: s.planTimes, done: s.done, doneMeta: s.doneMeta, notes: s.notes,
         checks: s.checks, pack: s.pack, budget: s.budget, order: s.order,
-        nearDismiss: s.nearDismiss, clocks: s.clocks, updatedAt: s.updatedAt,
+        nearDismiss: s.nearDismiss, clocks: s.clocks, carriedTo: s.carriedTo, carryMarkers: s.carryMarkers,
+        carryUndo: s.carryUndo ? { fromDay: s.carryUndo.fromDay, toDay: s.carryUndo.toDay } : null,
+        updatedAt: s.updatedAt,
         activity: (s.activity || []).slice(0, 5)
       });
     }
 
     function ensureClocks(s) {
       if (!s.clocks) s.clocks = {};
-      for (const k of ["done","swaps","transport","planTimes","order","notes","checks","pack","budget","nearDismiss"]) {
+      for (const k of ["done","swaps","transport","planTimes","order","notes","checks","pack","budget","nearDismiss","carry"]) {
         if (!s.clocks[k] || typeof s.clocks[k] !== "object") s.clocks[k] = {};
       }
       if (!s.orderMeta) s.orderMeta = { fri: null, sat: null, sun: null };
@@ -2403,6 +2683,8 @@
         pack: mergeMapLWW(local.pack, remote.pack, local.clocks, remote.clocks, "pack"),
         budget: mergeMapLWW(local.budget, remote.budget, local.clocks, remote.clocks, "budget"),
         nearDismiss: Object.assign({}, remote.nearDismiss || {}, local.nearDismiss || {}),
+        carriedTo: mergeMapLWW(local.carriedTo || {}, remote.carriedTo || {}, local.clocks, remote.clocks, "carry"),
+        carryMarkers: mergeMapLWW(local.carryMarkers || {}, remote.carryMarkers || {}, local.clocks, remote.clocks, "carry"),
         order: mergeOrderCAS(local.order, remote.order, local.clocks, remote.clocks),
         orderMeta: Object.assign({}, remote.orderMeta || {}, local.orderMeta || {}),
         activity: mergeActivity(local.activity, remote.activity),
@@ -2431,6 +2713,9 @@
         if (!merged.done[k]) delete dm[k];
       });
       merged.doneMeta = dm;
+      const localUndoAt = clockAt(local, "carry", "undo");
+      const remoteUndoAt = clockAt(remote, "carry", "undo");
+      merged.carryUndo = localUndoAt >= remoteUndoAt ? (local.carryUndo || null) : (remote.carryUndo || null);
       return merged;
     }
 
@@ -2451,6 +2736,9 @@
         order: s.order || { fri: [], sat: [], sun: [] },
         orderMeta: s.orderMeta || {},
         nearDismiss: s.nearDismiss || {},
+        carriedTo: s.carriedTo || {},
+        carryMarkers: s.carryMarkers || {},
+        carryUndo: s.carryUndo || null,
         clocks: s.clocks,
         updatedAt: s.updatedAt,
         updatedBy: s.updatedBy
@@ -2741,46 +3029,53 @@
       return hour + ":" + minute + " " + suffix;
     }
 
+    function lateDoneAnchorForDay(dayKey) {
+      let latest = null;
+      for (const slot of orderedSlots(dayKey)) {
+        const meta = state.doneMeta && state.doneMeta[slot.id];
+        const planned = slotScheduleDate(dayKey, slot);
+        if (!state.done[slot.id] || !meta || !planned) continue;
+        const completedAt = Date.parse(meta.at || "");
+        if (!Number.isFinite(completedAt) || completedAt - planned.getTime() <= 15 * 60000) continue;
+        if (!latest || completedAt > latest.completedAt) latest = { day: dayKey, slot, completedAt };
+      }
+      return latest;
+    }
+
     function lateDoneAnchor() {
       let latest = null;
       for (const day of ["fri", "sat", "sun"]) {
-        for (const slot of orderedSlots(day)) {
-          const meta = state.doneMeta && state.doneMeta[slot.id];
-          const planned = slotScheduleDate(day, slot);
-          if (!state.done[slot.id] || !meta || !planned) continue;
-          const completedAt = Date.parse(meta.at || "");
-          if (!Number.isFinite(completedAt) || completedAt - planned.getTime() <= 15 * 60000) continue;
-          if (!latest || completedAt > latest.completedAt) latest = { day, slot, completedAt };
-        }
+        const anchor = lateDoneAnchorForDay(day);
+        if (anchor && (!latest || anchor.completedAt > latest.completedAt)) latest = anchor;
       }
       return latest;
     }
 
     function replanRemaining() {
-      const anchor = lateDoneAnchor();
+      const next = firstIncomplete();
+      if (!next) return;
+      const dayKey = next.day;
+      const anchor = lateDoneAnchorForDay(dayKey);
       if (!anchor) return;
-      const plannedAnchor = slotScheduleDate(anchor.day, anchor.slot);
+      const plannedAnchor = slotScheduleDate(dayKey, anchor.slot);
       const now = new Date();
-      const ordered = orderedSlots(anchor.day);
+      const ordered = orderedSlots(dayKey);
       const anchorIndex = ordered.findIndex(slot => slot.id === anchor.slot.id);
       if (anchorIndex < 0) return;
 
-      state.planTimes[anchor.slot.id] = formatClock(now);
-      clockTouch("planTimes", anchor.slot.id);
       let previousPlanned = plannedAnchor ? plannedAnchor.getTime() : now.getTime();
       let cursor = now.getTime();
       for (let i = anchorIndex + 1; i < ordered.length; i++) {
         const slot = ordered[i];
-        const original = slotScheduleDate(anchor.day, slot);
+        if (state.done[slot.id]) continue;
+        const original = slotScheduleDate(dayKey, slot);
         const gap = original ? Math.max(30 * 60000, original.getTime() - previousPlanned) : 90 * 60000;
         cursor += gap;
-        if (!state.done[slot.id]) {
-          state.planTimes[slot.id] = formatClock(new Date(cursor));
-          clockTouch("planTimes", slot.id);
-        }
+        state.planTimes[slot.id] = formatClock(new Date(cursor));
+        clockTouch("planTimes", slot.id);
         previousPlanned = original ? original.getTime() : previousPlanned + gap;
       }
-      logActivity("replanned remaining " + ({ fri: "Friday", sat: "Saturday", sun: "Sunday" }[anchor.day] || anchor.day));
+      logActivity("replanned remaining " + ({ fri: "Friday", sat: "Saturday", sun: "Sunday" }[dayKey] || dayKey));
       queuePush();
       renderAll();
       renderActivity();
@@ -3104,7 +3399,7 @@
     }
 
     function orderedSlots(dayKey) {
-      const base = days[dayKey] || [];
+      const base = daySlotPool(dayKey);
       if (!state.order || typeof state.order !== "object") state.order = { fri: [], sat: [], sun: [] };
       let order = state.order[dayKey];
       if (!Array.isArray(order)) order = [];
@@ -3204,6 +3499,8 @@
       const railMeta = document.getElementById("railNextMeta");
       const go = document.getElementById("nextGo");
       const replan = document.getElementById("replanBtn");
+      const previewBtn = document.getElementById("previewNextDayBtn");
+      const undoBtn = document.getElementById("undoCarryBtn");
       if (!next) {
         title.textContent = "You’re clear — enjoy the drive home";
         meta.textContent = "All stops marked done";
@@ -3211,6 +3508,8 @@
         if (railMeta) railMeta.textContent = "All stops marked done.";
         if (go) { go.hidden = true; delete go.dataset.place; }
         if (replan) replan.hidden = true;
+        if (previewBtn) previewBtn.hidden = true;
+        if (undoBtn) undoBtn.hidden = true;
         return;
       }
       const placeId = activePlaceId(next.slot);
@@ -3230,8 +3529,13 @@
         go.href = mapsUrl(place, geo.ok ? geo : transportOrigin(next.day, next.slot), selectedTransport(next.day, next.slot, place));
       }
       if (replan) {
-        replan.hidden = !lateDoneAnchor();
+        replan.hidden = !lateDoneAnchorForDay(next.day);
       }
+      if (previewBtn) {
+        const nextDay = NEXT_TRIP_DAY[next.day];
+        previewBtn.hidden = !(nextDay && incompleteOnDay(next.day).length > 0);
+      }
+      if (undoBtn) undoBtn.hidden = !canUndoCarry();
     }
 
     let nearCandidate = null;
@@ -3430,6 +3734,7 @@
         const slot = [...days.fri, ...days.sat, ...days.sun].find(s => s.id === id);
         const place = places[activePlaceId(slot)];
         logActivity("marked done · " + (place ? place.name : id));
+        clearCarryUndoIfDone();
         if (navigator.vibrate) navigator.vibrate(18);
       } else {
         delete state.doneMeta[id];
@@ -3471,6 +3776,47 @@
     let placeReturnFocus = null;
     let pickerSlot = null;
     let pickerReturnFocus = null;
+    let carryPreviewReturnFocus = null;
+
+    function closeCarryPreviewSheet() {
+      const sheet = document.getElementById("carryPreviewSheet");
+      if (!sheet) return;
+      const returnFocus = carryPreviewReturnFocus;
+      sheet.classList.remove("show");
+      sheet.hidden = true;
+      sheet.setAttribute("aria-hidden", "true");
+      carryPreviewReturnFocus = null;
+      if (returnFocus && returnFocus.focus) returnFocus.focus();
+    }
+
+    function openCarryPreviewSheet(fromDay) {
+      const preview = buildCarryPreview(fromDay);
+      if (!preview) return;
+      const sheet = document.getElementById("carryPreviewSheet");
+      const list = document.getElementById("carryPreviewList");
+      const note = document.getElementById("carryPreviewNote");
+      const title = document.getElementById("carryPreviewTitle");
+      if (!sheet || !list || !note || !title) return;
+      const dayNames = { fri: "Friday", sat: "Saturday", sun: "Sunday" };
+      title.textContent = dayNames[preview.toDay] + " preview";
+      note.textContent = incompleteOnDay(fromDay).length + " unfinished " + dayNames[fromDay] +
+        " stop" + (incompleteOnDay(fromDay).length === 1 ? "" : "s") +
+        " would slot into " + dayNames[preview.toDay] + " around must-stops.";
+      list.innerHTML = preview.order.map(id => {
+        const slot = slotById(id);
+        if (!slot) return "";
+        const place = places[activePlaceId(slot)];
+        const carried = preview.carriedIds.includes(id);
+        const home = slotHomeDay(id);
+        const displayDay = carried ? preview.toDay : home;
+        return `<li><span class="carry-tag">${carried ? "carry" : (isLockedSlot(slot) ? "must" : "plan")}</span><span><strong>${escapeHtml(place.name)}</strong><br><span style="color:var(--muted);font-size:0.8rem;">${escapeHtml(slotDisplayTime(displayDay, slot))}</span></span></li>`;
+      }).join("");
+      carryPreviewReturnFocus = document.activeElement;
+      sheet.hidden = false;
+      sheet.setAttribute("aria-hidden", "false");
+      sheet.classList.add("show");
+      sheet.querySelector(".picker-panel")?.focus();
+    }
 
     function closePlaceSheet() {
       const sheet = document.getElementById("placeSheet");
@@ -3629,6 +3975,19 @@
         replanRemaining();
         return;
       }
+      if (e.target.id === "previewNextDayBtn") {
+        const next = firstIncomplete();
+        if (next) openCarryPreviewSheet(next.day);
+        return;
+      }
+      if (e.target.id === "undoCarryBtn") {
+        undoLastCarry();
+        return;
+      }
+      if (e.target.id === "carryPreviewClose" || e.target.id === "carryPreviewSheet") {
+        closeCarryPreviewSheet();
+        return;
+      }
       const open = e.target.closest(".open-picker");
       if (open) {
         const opts = (open.dataset.options || "").split(",").filter(Boolean);
@@ -3712,6 +4071,7 @@
       if (document.visibilityState === "visible") {
         if (gpsWanted) startGps();
         else showGpsBanner(true);
+        checkAndRunMidnightCarry();
         refreshTimingLabels();
         if (who) pullRemote();
       } else {
@@ -3787,6 +4147,7 @@
     applyTheme(document.documentElement.dataset.theme || "dark", false);
     renderWho();
     if (who) {
+      checkAndRunMidnightCarry();
       renderAll();
       startSyncLoop();
     } else {
