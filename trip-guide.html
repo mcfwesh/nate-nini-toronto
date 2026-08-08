@@ -226,6 +226,7 @@
     }
     .sticky-now-text { flex: 1; min-width: 0; }
     .sticky-now-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.35rem; }
+    .sticky-now-actions .btn[hidden] { display: none !important; }
     .btn-go {
       flex: 0 0 auto;
       background: var(--gold);
@@ -1881,9 +1882,9 @@
         lat: 43.7155, lng: -79.603, mode: "drive",
       },
       hotelStroll: {
-        name: "Hotel area stroll",
+        name: "Hotel reset before the club",
         addr: "Around 5503 Eglinton Ave W",
-        do: "Park at the hotel. Walk nearby for a snack or coffee. Lightest option after dinner.",
+        do: "Return to the hotel, shower, eat, and rest before the late-night club. Keep this as a flexible reset block.",
         maps: "https://maps.google.com/?q=5503+Eglinton+Ave+W+Toronto",
         lat: 43.6436, lng: -79.5645, mode: "walk",
       },
@@ -2099,6 +2100,30 @@
       ]
     };
 
+    const SATURDAY_SCHEDULE_VERSION = "sat-v2-event-order";
+    const SATURDAY_CORE_IDS = ["s1", "s2", "s3", "s4", "s5"];
+    const SATURDAY_CARRY_TIMES = {
+      f3: "1:30 PM",
+      f4: "5:45 PM",
+      f5: "7:30 PM",
+      f6: "9:15 PM"
+    };
+
+    function saturdayOrderWithCarry(carryIds) {
+      const unique = [];
+      carryIds.forEach(id => {
+        if (!SATURDAY_CORE_IDS.includes(id) && !unique.includes(id)) unique.push(id);
+      });
+      unique.sort((a, b) => {
+        const ai = ["f3", "f4", "f5", "f6"].indexOf(a);
+        const bi = ["f3", "f4", "f5", "f6"].indexOf(b);
+        return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+      });
+      const early = unique.filter(id => id === "f3");
+      const later = unique.filter(id => id !== "f3");
+      return ["s1", "s2"].concat(early, ["s3"], later, ["s4", "s5"]);
+    }
+
     const TRIP_DAY_DATES = { fri: "2026-08-07", sat: "2026-08-08", sun: "2026-08-09" };
     const NEXT_TRIP_DAY = { fri: "sat", sat: "sun" };
     const TORONTO_TZ = "America/Toronto";
@@ -2116,6 +2141,48 @@
         if (slot) return slot;
       }
       return null;
+    }
+
+    function repairSaturdaySchedule(target, force) {
+      if (!force && target.scheduleVersion === SATURDAY_SCHEDULE_VERSION) return target;
+      if (!target.order || typeof target.order !== "object") {
+        target.order = { fri: [], sat: [], sun: [] };
+      }
+      if (!target.order.sat || !Array.isArray(target.order.sat)) target.order.sat = [];
+      const carriedIds = [];
+      const addCarry = (id) => {
+        const slot = slotById(id);
+        if (!slot || SATURDAY_CORE_IDS.includes(id) || slotHomeDay(id) !== "fri") return;
+        if (carriedIds.includes(id)) return;
+        carriedIds.push(id);
+      };
+      target.order.sat.forEach(addCarry);
+      Object.keys(target.carriedTo || {})
+        .filter(id => target.carriedTo[id] === "sat")
+        .forEach(addCarry);
+
+      // Saturday's fixed events remain in this order. Carryovers sit before
+      // the hotel reset and late-night club, never between club-time slots.
+      target.order.sat = saturdayOrderWithCarry(carriedIds);
+      target.planTimes = plainMap(target.planTimes);
+      SATURDAY_CORE_IDS.forEach(id => { delete target.planTimes[id]; });
+      carriedIds.forEach(id => {
+        if (SATURDAY_CARRY_TIMES[id]) target.planTimes[id] = SATURDAY_CARRY_TIMES[id];
+      });
+      if (carriedIds.length) target.planTimes.s4 = "10:15 PM";
+      target.scheduleVersion = SATURDAY_SCHEDULE_VERSION;
+      return target;
+    }
+
+    function projectedCarryTimes(toDay, carriedIds) {
+      const out = {};
+      if (toDay === "sat") {
+        carriedIds.forEach(id => {
+          if (SATURDAY_CARRY_TIMES[id]) out[id] = SATURDAY_CARRY_TIMES[id];
+        });
+        if (carriedIds.length) out.s4 = "10:15 PM";
+      }
+      return out;
     }
 
     function carriedToDay(slotId) {
@@ -2188,6 +2255,14 @@
 
     function smartMergeOrder(toDay, carriedIds) {
       const existing = orderedSlots(toDay).map(s => s.id).filter(id => !carriedIds.includes(id));
+      if (toDay === "sat") {
+        const carry = [];
+        [...existing, ...carriedIds].forEach(id => {
+          if (SATURDAY_CORE_IDS.includes(id) || carry.includes(id)) return;
+          carry.push(id);
+        });
+        return saturdayOrderWithCarry(carry);
+      }
       const locks = existing.filter(id => isLockedSlot(slotById(id)));
       let flexPool = existing.filter(id => !locks.includes(id));
       for (const carriedId of carriedIds) {
@@ -2223,6 +2298,7 @@
         toDay,
         carriedIds,
         order,
+        times: projectedCarryTimes(toDay, carriedIds),
         slots: order.map(id => slotById(id)).filter(Boolean)
       };
     }
@@ -2260,6 +2336,7 @@
         state.carriedTo[id] = toDay;
         clockTouch("carry", id);
       });
+      Object.assign(state.planTimes, projectedCarryTimes(toDay, carriedIds));
 
       state.order[toDay] = smartMergeOrder(toDay, carriedIds);
       clockTouch("order", toDay);
@@ -2410,6 +2487,7 @@
         nearDismiss: {},
         order: { fri: [], sat: [], sun: [] },
         orderMeta: { fri: null, sat: null, sun: null },
+        scheduleVersion: null,
         carriedTo: {},
         carryMarkers: {},
         carryUndo: null,
@@ -2432,6 +2510,7 @@
       out.carryUndo = out.carryUndo && typeof out.carryUndo === "object" ? out.carryUndo : null;
       if (!["fri", "sat", "sun", "tools"].includes(out.panel)) out.panel = "fri";
       out.rev = Number.isFinite(out.rev) && out.rev >= 0 ? out.rev : 0;
+      repairSaturdaySchedule(out);
       return out;
     }
 
@@ -2568,6 +2647,7 @@
         checks: s.checks, pack: s.pack, budget: s.budget, order: s.order,
         nearDismiss: s.nearDismiss, clocks: s.clocks, carriedTo: s.carriedTo, carryMarkers: s.carryMarkers,
         carryUndo: s.carryUndo ? { fromDay: s.carryUndo.fromDay, toDay: s.carryUndo.toDay } : null,
+        scheduleVersion: s.scheduleVersion,
         updatedAt: s.updatedAt,
         activity: (s.activity || []).slice(0, 5)
       });
@@ -2697,7 +2777,8 @@
           ? (Date.parse(local.updatedAt) >= Date.parse(remote.updatedAt) ? local.updatedBy : remote.updatedBy)
           : (local.updatedBy || remote.updatedBy),
         panel: local.panel,
-        installDismissed: local.installDismissed
+        installDismissed: local.installDismissed,
+        scheduleVersion: local.scheduleVersion || remote.scheduleVersion || null
       };
       // prefer newer doneMeta per slot
       const dm = {};
@@ -2713,6 +2794,11 @@
         if (!merged.done[k]) delete dm[k];
       });
       merged.doneMeta = dm;
+      repairSaturdaySchedule(
+        merged,
+        local.scheduleVersion !== SATURDAY_SCHEDULE_VERSION ||
+        remote.scheduleVersion !== SATURDAY_SCHEDULE_VERSION
+      );
       const localUndoAt = clockAt(local, "carry", "undo");
       const remoteUndoAt = clockAt(remote, "carry", "undo");
       merged.carryUndo = localUndoAt >= remoteUndoAt ? (local.carryUndo || null) : (remote.carryUndo || null);
@@ -2736,6 +2822,7 @@
         order: s.order || { fri: [], sat: [], sun: [] },
         orderMeta: s.orderMeta || {},
         nearDismiss: s.nearDismiss || {},
+        scheduleVersion: s.scheduleVersion || SATURDAY_SCHEDULE_VERSION,
         carriedTo: s.carriedTo || {},
         carryMarkers: s.carryMarkers || {},
         carryUndo: s.carryUndo || null,
@@ -3336,7 +3423,7 @@
           <h2 class="section-title">${title}</h2>
           <button type="button" class="btn btn-ghost reset-day" data-day="${key}">Reset ${dayName} order</button>
         </div>
-        <p class="reorder-hint">↑ ↓ moves a stop into that time · Now/Next follow the new order</p>
+        <p class="reorder-hint">↑ ↓ changes the order · fixed event times stay attached to each stop</p>
         <div class="timeline" data-day="${key}">` +
         orderedSlots(key).map(s => renderSlot(s, key)).join("") +
         `</div>`;
@@ -3423,13 +3510,9 @@
       return (days[dayKey] || []).map(s => s.time);
     }
 
-    /** Time follows position in the day: 1st stop gets earliest plan time, etc. */
+    /** Event times belong to stops; reordering must never move a fixed event in time. */
     function slotDisplayTime(dayKey, slot) {
       if (state.planTimes && state.planTimes[slot.id]) return state.planTimes[slot.id];
-      const ordered = orderedSlots(dayKey);
-      const idx = ordered.findIndex(s => s.id === slot.id);
-      const times = dayPlanTimes(dayKey);
-      if (idx >= 0 && times[idx]) return times[idx];
       return slot.time;
     }
 
@@ -3809,7 +3892,8 @@
         const carried = preview.carriedIds.includes(id);
         const home = slotHomeDay(id);
         const displayDay = carried ? preview.toDay : home;
-        return `<li><span class="carry-tag">${carried ? "carry" : (isLockedSlot(slot) ? "must" : "plan")}</span><span><strong>${escapeHtml(place.name)}</strong><br><span style="color:var(--muted);font-size:0.8rem;">${escapeHtml(slotDisplayTime(displayDay, slot))}</span></span></li>`;
+        const displayTime = preview.times[id] || slotDisplayTime(displayDay, slot);
+        return `<li><span class="carry-tag">${carried ? "carry" : (isLockedSlot(slot) ? "must" : "plan")}</span><span><strong>${escapeHtml(place.name)}</strong><br><span style="color:var(--muted);font-size:0.8rem;">${escapeHtml(displayTime)}</span></span></li>`;
       }).join("");
       carryPreviewReturnFocus = document.activeElement;
       sheet.hidden = false;

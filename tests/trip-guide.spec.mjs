@@ -124,6 +124,26 @@ test("opens place details and switches day panels", async ({ page }) => {
   await expect(page.locator("#panel-fri")).not.toHaveClass(/active/);
 });
 
+test("keeps Saturday event times attached to the right stops", async ({ page }) => {
+  await openGuide(page);
+  await page.evaluate(() => {
+    const key = "nate-nini-toronto-2026-v4";
+    const state = JSON.parse(localStorage.getItem(key) || "{}");
+    state.scheduleVersion = null;
+    state.order = { fri: [], sat: ["s5", "s3", "s1", "s4", "s2"], sun: [] };
+    state.planTimes = { s5: "2:00 PM", s3: "11:30 PM" };
+    state.carriedTo = {};
+    localStorage.setItem(key, JSON.stringify(state));
+  });
+  await page.reload();
+  const order = await page.locator("#panel-sat .card").evaluateAll(cards =>
+    cards.map(card => card.dataset.slot)
+  );
+  expect(order).toEqual(["s1", "s2", "s3", "s4", "s5"]);
+  await expect(page.locator("#panel-sat .card[data-slot='s3'] .time-pill")).toHaveText("2:00 PM");
+  await expect(page.locator("#panel-sat .card[data-slot='s5'] .time-pill")).toHaveText("11:30 PM");
+});
+
 test("shows a desktop rail and keeps the full tool panel reachable", async ({ page }) => {
   await page.setViewportSize({ width: 1200, height: 900 });
   await openGuide(page);
